@@ -5,7 +5,7 @@
 ### Get latest docker image 
 
 ```
-$ docker pull klkelley/http-server:branch-master-latest
+$ docker pull klkelley/http-server:master.latest
 ```
 
 ### Pull a Specific Image 
@@ -25,8 +25,11 @@ There are three different types of tagged images:
 that do not change.  
 
 ### Run project 
+The default port is set to 0 and can be set to specific port by passing a port number as an 
+argument.
+
 ```
-$ docker run klkelley/http-server:latest
+$ docker run klkelley/http-server:master.latest -p <OPTIONAL PORT NUMBER>
 ```
 
 ## Using Gradle 
@@ -37,8 +40,12 @@ $ gradle build
 ```
 
 ### Run project 
+
+The default port is set to 0 and can be set to specific port by passing a port number as an 
+argument.
+
 ```
-$ java -jar build/libs/http-server.jar
+$ java -jar build/libs/http-server.jar -p <OPTIONAL PORT NUMBER>
 ```
 
 ### Run tests
