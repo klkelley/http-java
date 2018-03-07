@@ -1,28 +1,73 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '3.2.3'
+}
+
 group 'me.karakelley'
-version '1.0-SNAPSHOT'
+version 'server'
 
 apply plugin: 'java'
 
+import com.bmuschko.gradle.docker.tasks.image.*
+
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-group 'me.karakelley'
-version '1.0-SNAPSHOT'
-
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+    testCompile("org.junit.jupiter:junit-jupiter-api:5.1.0")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.1.0")
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'me.karakelley.http.Main'
+        )
+    }
+}
+
+docker {
+    registryCredentials {
+        username = getConfigurationProperty('DOCKER_USERNAME', 'docker.username')
+        password = getConfigurationProperty('DOCKER_PWORD', 'docker.password')
+        email = getConfigurationProperty('DOCKER_EMAIL', 'docker.email')
+    }
+}
+
+task createDockerFile(type: Dockerfile) {
+    group = 'Docker'
+    def labels = [maintainer: "kkelley@8thlight.com"]
+
+    destFile = project.file('build/docker/Dockerfile')
+    from 'openjdk:8-jre-alpine'
+    label labels
+    copyFile 'libs/http-server.jar', 'libs/http-server.jar'
+    entryPoint 'java'
+    defaultCommand '-jar', 'libs/http-server.jar'
+    exposePort 8080
+    runCommand 'apk --update --no-cache add curl'
+    instruction 'HEALTHCHECK CMD curl -f http://localhost:8080/health || exit 1'
+}
+
+task syncWebAppArchive(type: Sync) {
+    dependsOn assemble
+    from jar.path
+    into createDockerFile.destFile.parentFile
+}
+
+createDockerFile.dependsOn syncWebAppArchive
+
+task buildImage(type: DockerBuildImage, dependsOn: [createDockerFile]) {
+    group = 'Docker'
+    inputDir = project.file("build")
+    dockerFile = createDockerFile.destFile
+    tag = 'klkelley/http-server'
+}
+
+String getConfigurationProperty(String envVar, String sysProp) {
+    System.getenv(envVar) ?: project.findProperty(sysProp)
 }
