@@ -30,7 +30,6 @@ public class ServerConfiguration {
       notAPort();
     } catch (RuntimeException ex) {
       logger.info(ex.getMessage());
-      System.exit(1);
     }
   }
 
