@@ -1,12 +1,9 @@
 package me.karakelley.http;
 
-public class Main {
+class Main {
   public static void main(String[] args) {
-    System.out.println("Hello, World!");
-  }
-
-  public boolean equal() {
-    return true;
+    Integer port = new ServerConfiguration(args, new ServerLogger("ServerConfiguration")).getPort();
+    Server server = new Server(port, new ServerLogger("Server"));
+    server.start();
   }
 }
-
