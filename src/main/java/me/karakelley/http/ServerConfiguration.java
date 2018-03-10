@@ -1,14 +1,16 @@
 package me.karakelley.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ServerConfiguration {
   private final String[] args;
   private final int DEFAULT_PORT = 0;
-  private Integer port;
-  private static ServerLogger logger;
+  private Integer port = -1;
+  Logger logger = LoggerFactory.getLogger(ServerConfiguration.class );
 
-  public ServerConfiguration(String[] args, ServerLogger logger) {
+  public ServerConfiguration(String[] args) {
     this.args = args;
-    this.logger = logger;
   }
 
   public void setPort() {

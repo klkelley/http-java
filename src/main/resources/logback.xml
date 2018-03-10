@@ -7,8 +7,14 @@
             </pattern>
         </encoder>
     </appender>
+    <appender name="appender" class="me.karakelley.http.Appender"/>
+
+    <appender name="appender" class="me.karakelley.http.Appender">
+        <prefix>test</prefix>
+    </appender>
 
     <root level="info">
         <appender-ref ref="console" />
+        <appender-ref ref="appender" />
     </root>
 </configuration>
