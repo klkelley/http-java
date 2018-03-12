@@ -10,6 +10,15 @@ env:
 jdk:
   - oraclejdk8
 
+before_install:
+  # Download desired version of Gradle
+  - wget http://services.gradle.org/distributions/gradle-4.6-bin.zip
+  - unzip -qq gradle-4.6-bin.zip
+  - export GRADLE_HOME=$PWD/gradle-4.6
+  - export PATH=$GRADLE_HOME/bin:$PATH
+  # just to test gradle version, against our provided one
+  - gradle -v
+
 services:
   - docker
 

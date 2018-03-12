@@ -6,25 +6,23 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 
-import static java.lang.String.format;
-
-class Server {
+class HttpServer {
   private final int port;
-  private ServerSocket serverSocket;
   private final Logger logger = LoggerFactory.getLogger("Server");
+  private ServerSocket serverSocket;
 
-  public Server(int port) {
+  public HttpServer(int port) {
     this.port = port;
   }
 
   public void start() {
     try {
       serverSocket = new ServerSocket(port);
-      logger.info("Started on port {}", serverSocket.getLocalPort());
+      logger.info("Started on port {}", getPortNumber());
       while (true)
-        new ClientHandler(serverSocket.accept()).start();
-    } catch (IOException | IllegalArgumentException e) {
-      logger.info(e.getMessage());
+        new HttpConnectionHandler(serverSocket.accept()).start();
+    } catch (Exception e) {
+      logger.info("Ouch!", e);
     } finally {
       shutDown();
     }
@@ -39,7 +37,7 @@ class Server {
       try {
         serverSocket.close();
       } catch (IOException e) {
-        logger.info(e.getMessage());
+        logger.info("Ouch!", e);
       }
     }
   }

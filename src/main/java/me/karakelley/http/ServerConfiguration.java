@@ -7,7 +7,7 @@ public class ServerConfiguration {
   private final String[] args;
   private final int DEFAULT_PORT = 0;
   private Integer port = -1;
-  Logger logger = LoggerFactory.getLogger(ServerConfiguration.class );
+  Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
 
   public ServerConfiguration(String[] args) {
     this.args = args;
@@ -31,7 +31,7 @@ public class ServerConfiguration {
       tooManyArguments();
       notAPort();
     } catch (RuntimeException ex) {
-      logger.info(ex.getMessage());
+      logger.info("Ouch!", ex);
     }
   }
 

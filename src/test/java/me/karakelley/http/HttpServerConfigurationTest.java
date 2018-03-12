@@ -1,27 +1,28 @@
 package me.karakelley.http;
 
 import ch.qos.logback.classic.Logger;
+import me.karakelley.http.utility.InMemoryAppender;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ServerConfigurationTest {
+class HttpServerConfigurationTest {
   ServerConfiguration serverConfig;
   private static Logger rootLogger;
-  private static Appender appender;
+  private static InMemoryAppender inMemoryAppender;
 
   @BeforeEach
   void setUp() {
     rootLogger = (Logger) LoggerFactory.getLogger("ROOT");
-    appender = (Appender) rootLogger.getAppender("appender");
-    appender.setPrefix("test");
-    appender.start();
+    inMemoryAppender = (InMemoryAppender) rootLogger.getAppender("InMemoryAppender");
+    inMemoryAppender.setPrefix("test");
+    inMemoryAppender.start();
   }
 
   @AfterEach
   void tearDown() {
-    appender.stop();
+    inMemoryAppender.stop();
   }
 
   @Test
@@ -37,7 +38,7 @@ class ServerConfigurationTest {
     serverConfig = new ServerConfiguration(new String[]{"5000"});
     serverConfig.setPort();
 
-    assertTrue(appender.getEvents().contains("[INFO] Not enough arguments"));
+    assertTrue(inMemoryAppender.getEvents().contains("Not enough arguments"));
   }
 
   @Test
@@ -53,7 +54,7 @@ class ServerConfigurationTest {
     serverConfig = new ServerConfiguration(new String[]{"-p", "badinput"});
     serverConfig.setPort();
 
-    assertTrue(appender.getEvents().contains("[INFO] java.lang.NumberFormatException: For input string: \"badinput\""));
+    assertTrue(inMemoryAppender.getEvents().contains("java.lang.NumberFormatException: For input string: \"badinput\""));
   }
 
   @Test
@@ -61,6 +62,6 @@ class ServerConfigurationTest {
     serverConfig = new ServerConfiguration(new String[]{"-p", "badinput", "otherstuff"});
     serverConfig.setPort();
 
-    assertTrue(appender.getEvents().contains("[INFO] Not enough arguments"));
+    assertTrue(inMemoryAppender.getEvents().contains("Not enough arguments"));
   }
 }
