@@ -3,6 +3,8 @@ package me.karakelley.http;
 import java.io.*;
 import java.net.ServerSocket;
 
+import static java.lang.String.format;
+
 class Server {
   private final int port;
   private ServerSocket serverSocket;
@@ -16,7 +18,7 @@ class Server {
   public void start() {
     try {
       serverSocket = new ServerSocket(port);
-      logger.info("Started on port " + port);
+      logger.info("Started on port " + serverSocket.getLocalPort());
       while (true)
         new ClientHandler(serverSocket.accept()).start();
     } catch (IOException | IllegalArgumentException e) {

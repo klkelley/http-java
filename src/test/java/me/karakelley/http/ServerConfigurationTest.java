@@ -22,7 +22,7 @@ class ServerConfigurationTest {
     serverConfig.setPort();
 
     Object message = mockLogger.getMessages().get(0);
-    assertTrue(message.toString().contains("Invalid port arguments"));
+    assertTrue(message.toString().contains("Not enough arguments"));
   }
 
   @Test
@@ -39,7 +39,7 @@ class ServerConfigurationTest {
     serverConfig.setPort();
 
     Object message = mockLogger.getMessages().get(0);
-    assertTrue(message.toString().contains("Invalid port arguments"));
+    assertTrue(message.toString().contains("lang.NumberFormatException: For input string: "));
   }
 
   @Test
@@ -47,7 +47,7 @@ class ServerConfigurationTest {
     serverConfig = new ServerConfiguration(new String[]{"-p", "badinput", "otherstuff"}, mockLogger);
     serverConfig.setPort();
     Object message = mockLogger.getMessages().get(0);
-    assertTrue(message.toString().contains("Invalid port arguments"));
+    assertTrue(message.toString().contains("Not enough arguments"));
   }
 
 }
