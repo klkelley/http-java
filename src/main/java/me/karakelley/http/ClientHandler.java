@@ -1,5 +1,8 @@
 package me.karakelley.http;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,11 +12,10 @@ import java.util.concurrent.CompletableFuture;
 
 class ClientHandler {
   private final Socket clientSocket;
-  private static ServerLogger logger;
+  Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
   public ClientHandler(Socket clientSocket) {
     this.clientSocket = clientSocket;
-    this.logger = new ServerLogger("ClientHandler");
   }
 
   public void start() {
