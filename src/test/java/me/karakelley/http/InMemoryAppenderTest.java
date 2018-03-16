@@ -3,6 +3,7 @@ package me.karakelley.http;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.BasicStatusManager;
+import me.karakelley.http.utility.InMemoryAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import ch.qos.logback.classic.spi.LoggingEvent;
@@ -11,10 +12,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AppenderTest {
+class InMemoryAppenderTest {
 
   private LoggerContext context;
-  private Appender appender = new Appender();
+  private InMemoryAppender inMemoryAppender = new InMemoryAppender();
 
   private LoggingEvent event;
 
@@ -23,8 +24,8 @@ class AppenderTest {
     context = new LoggerContext();
     context.setName("context");
     context.setStatusManager(new BasicStatusManager());
-    appender.setContext(context);
-    appender.setPrefix("test");
+    inMemoryAppender.setContext(context);
+    inMemoryAppender.setPrefix("test");
     event = new LoggingEvent("fcqn", context.getLogger("logger"), Level.INFO, "Test message", null, new Object[0]);
     context.start();
   }
@@ -32,12 +33,12 @@ class AppenderTest {
   @AfterEach
   void tearDown() {
     context.stop();
-    appender.stop();
+    inMemoryAppender.stop();
   }
 
   @Test
   void testAppendsMessage() {
-    appender.append(event);
-    assertTrue(appender.getEvents().get(0).contains("[INFO] Test message"));
+    inMemoryAppender.append(event);
+    assertTrue(inMemoryAppender.getEvents().get(0).contains("[INFO] Test message"));
   }
 }
