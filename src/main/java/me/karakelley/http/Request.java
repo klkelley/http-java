@@ -7,13 +7,15 @@ import java.util.Map;
 
 public class Request {
   private final LineReader reader;
+  private final int port;
   private String requestMethod;
   private String requestPath;
   private String requestProtocol;
-  Map headers = new HashMap<String, String>();
+  final Map<String, String> headers = new HashMap<>();
 
-  public Request(LineReader reader) {
+  public Request(LineReader reader, int port) {
     this.reader = reader;
+    this.port = port;
     setRequestLine();
     setHeaders();
   }
@@ -35,7 +37,19 @@ public class Request {
   }
 
   public String getHeader(String header) {
-    return (String) headers.get(header);
+    return headers.get(header);
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public boolean validRequestLine() {
+    try {
+      return requestMethod.equals("GET") && requestProtocol.equals("HTTP/1.1");
+    } catch (NullPointerException e) {
+      return false;
+    }
   }
 
   private void setHeaders() {
@@ -63,14 +77,6 @@ public class Request {
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
-    }
-  }
-
-  public boolean validRequestLine() {
-    try {
-      return requestMethod.equals("GET") && requestProtocol.equals("HTTP/1.1");
-    } catch (NullPointerException e) {
-      return false;
     }
   }
 }

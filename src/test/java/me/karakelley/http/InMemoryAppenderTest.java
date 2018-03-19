@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryAppenderTest {
 
   private LoggerContext context;
-  private InMemoryAppender inMemoryAppender = new InMemoryAppender();
+  private final InMemoryAppender inMemoryAppender = new InMemoryAppender();
 
   private LoggingEvent event;
 

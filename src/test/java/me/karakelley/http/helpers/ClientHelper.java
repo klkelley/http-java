@@ -12,7 +12,7 @@ public class ClientHelper {
   private PrintWriter out;
   private BufferedReader in;
   int count = 0;
-  int maxTries = 4;
+  final int maxTries = 4;
 
   public void connectWithTry(String host, Integer port) throws InterruptedException, IOException {
     try {

@@ -1,25 +1,33 @@
 package me.karakelley.http;
 
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Response {
 
-  private final Request request;
-  private final String ROOT = "/";
-  private final String PROTOCOL = "HTTP/1.1 ";
-  private final String CONTENT_TYPE = "Content-Type: text/plain\r\n";
-  private final String BLANK_LINE = "\r\n";
-  private final String CONTENT_LENGTH = "Content-Length: ";
-  private final String DEFAULT_RESPONSE = "Hello World";
+  private String status;
+  private Map<String, String> headers = new HashMap<>();
+  private String body;
 
-  public Response(Request request) {
-    this.request = request;
+  public void setStatus(String status) {
+    this.status = status;
   }
 
-  public String getResponse() {
-    if (request.validRequestLine() && request.getPath().equals(ROOT)) {
-      byte[] responseLength = DEFAULT_RESPONSE.getBytes(StandardCharsets.UTF_8);
-      return PROTOCOL + Status.OK + CONTENT_TYPE + CONTENT_LENGTH + responseLength.length + BLANK_LINE + BLANK_LINE + DEFAULT_RESPONSE;
-    } else return PROTOCOL + Status.NOT_FOUND + BLANK_LINE;
+  public void setHeaders(String header, String value) {
+    headers.put(header, value);
+  }
+
+  public void setBody(String body) {
+    this.body = body;
+  }
+
+  public String getBody() {
+    if (body != null) {
+      return body;
+    } else return "";
+  }
+
+  public String deliver() {
+    return ResponseFormatter.build(status, headers, getBody());
   }
 }
