@@ -67,7 +67,8 @@ class HttpServerTest {
     Thread.sleep(10);
     client.connectWithTry("127.0.0.1", httpServer.getPortNumber());
 
-    assertTrue(client.sendMessage("GET / HTTP/1.1 \r\n").contains("Content-Type: text/plain"));
+    ArrayList<String> response = client.sendMessage("GET / HTTP/1.1 \r\n");
+    assertTrue(response.contains("Content-Type: text/plain") && response.contains("Content-Length: 11"));
   }
 
   @Test
