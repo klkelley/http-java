@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,7 +37,7 @@ class HttpServerTest {
   }
 
   @Test
-  void testSendsResponseGivenValidRequest() throws Exception {
+  void testSendsResponseWithBodyGivenValidRequest() throws Exception {
     httpServer = new HttpServer(0);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(() -> httpServer.start());
@@ -44,6 +45,18 @@ class HttpServerTest {
     client.connectWithTry("127.0.0.1", httpServer.getPortNumber());
 
     assertTrue(client.sendMessage("GET / HTTP/1.1 \r\n").contains("Hello World"));
+  }
+
+  @Test
+  void testSendsResponseGivenValidRequest() throws Exception {
+    httpServer = new HttpServer(0);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(() -> httpServer.start());
+    Thread.sleep(10);
+    client.connectWithTry("127.0.0.1", httpServer.getPortNumber());
+
+    ArrayList<String> response = client.sendMessage("GET / HTTP/1.1 \r\n");
+    assertTrue(response.contains("HTTP/1.1 200 OK"));
   }
 
   @Test
@@ -65,7 +78,8 @@ class HttpServerTest {
     Thread.sleep(10);
     client.connectWithTry("127.0.0.1", httpServer.getPortNumber());
 
-    assertTrue(client.sendMessage("GET /nowhere HTTP/1.1 \r\n").contains("HTTP/1.1 400 Bad Request"));
+    ArrayList<String> response = client.sendMessage("GET /nowhere HTTP/1.1 \r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -76,7 +90,8 @@ class HttpServerTest {
     Thread.sleep(10);
     client.connectWithTry("127.0.0.1", 4000);
 
-    assertTrue(client.sendMessage("GET /\r\n").contains("HTTP/1.1 400 Bad Request"));
+    ArrayList<String> response = client.sendMessage("GET /\r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -86,7 +101,7 @@ class HttpServerTest {
     executorService.submit(() -> httpServer.start());
     client.connectWithTry("127.0.0.1", 4000);
 
-    assertTrue(client.sendMessage("GIT / HTTP/1.1\r\n").contains("HTTP/1.1 400 Bad Request"));
+    assertTrue(client.sendMessage("GIT / HTTP/1.1\r\n").contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -96,7 +111,7 @@ class HttpServerTest {
     executorService.submit(() -> httpServer.start());
     client.connectWithTry("127.0.0.1", 4000);
 
-    assertTrue(client.sendMessage("GET / HT\r\n").contains("HTTP/1.1 400 Bad Request"));
+    assertTrue(client.sendMessage("GET / HT\r\n").contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
