@@ -1,9 +1,29 @@
 package me.karakelley.http;
 
+import me.karakelley.http.controllers.Application;
+import me.karakelley.http.utility.CommandLineArguments;
+import me.karakelley.http.utility.SystemExit;
+
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 class Main {
   public static void main(String[] args) {
-    Integer port = new ServerConfiguration(args).getPort();
-    HttpServer server = new HttpServer(port);
+    main(args, (argsHash1, serverConfiguration1) -> {
+      if (!argsHash1.containsValue("nodirectory")) {
+        serverConfiguration1.setController(new Application(PublicDirectory.create(argsHash1.get("directory"))));
+      } else serverConfiguration1.setController(new Application());
+    });
+  }
+
+  public static void main(String[] args, BiConsumer<Map<String, String>, ServerConfiguration> configurationBiConsumer) {
+    Map<String, String> argsHash = CommandLineArguments.parse(args, new SystemExit());
+    ServerConfiguration serverConfiguration = new ServerConfiguration();
+    serverConfiguration.setPort(argsHash.get("port"));
+
+    configurationBiConsumer.accept(argsHash, serverConfiguration);
+
+    HttpServer server = new HttpServer(serverConfiguration);
     server.start();
   }
 }

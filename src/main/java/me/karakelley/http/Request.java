@@ -44,6 +44,22 @@ public class Request {
     return port;
   }
 
+  public String getHostAndPort() {
+    String host = getHost();
+    if (!host.contains(":")) {
+      host += ":" + getPort();
+    }
+    return host;
+  }
+
+  private String getHost() {
+    String host = getHeaders().get("Host");
+    if (host == null) {
+      host = "localhost";
+    }
+    return host;
+  }
+
   public boolean validRequestLine() {
     try {
       return requestMethod.equals("GET") && requestProtocol.equals("HTTP/1.1");
@@ -79,4 +95,5 @@ public class Request {
       throw new RuntimeException(e);
     }
   }
+
 }
