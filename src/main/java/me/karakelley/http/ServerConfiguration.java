@@ -7,7 +7,7 @@ public class ServerConfiguration {
   private final String[] args;
   private final int DEFAULT_PORT = 0;
   private Integer port = -1;
-  Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
+  final Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
 
   public ServerConfiguration(String[] args) {
     this.args = args;

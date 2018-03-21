@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RequestTest {
   Request request;
@@ -17,25 +18,25 @@ class RequestTest {
 
   @Test
   void testGetMethod() {
-    request = new Request(newBufferedReader(basicGetRequest));
+    request = new Request(newBufferedReader(basicGetRequest), 0);
     assertEquals("GET", request.getMethod());
   }
 
   @Test
   void testGetPath() {
-    request = new Request(newBufferedReader(basicGetRequest));
+    request = new Request(newBufferedReader(basicGetRequest), 0);
     assertEquals("/", request.getPath());
   }
 
   @Test
   void testGetProtocol() {
-    request = new Request(newBufferedReader(basicGetRequest));
+    request = new Request(newBufferedReader(basicGetRequest), 0);
     assertEquals("HTTP/1.1", request.getProtocol());
   }
 
   @Test
   void testGetHeaders() {
-    request = new Request(newBufferedReader(requestWithHeaders));
+    request = new Request(newBufferedReader(requestWithHeaders), 0);
     HashMap headers = new HashMap();
     headers.put("Host", "localhost:5000");
     headers.put("Connection", "keep-alive");
@@ -44,14 +45,14 @@ class RequestTest {
 
   @Test
   void testOneHeader() {
-    request = new Request(newBufferedReader(basicGetRequest));
+    request = new Request(newBufferedReader(basicGetRequest), 0);
     assertEquals("localhost:5000", request.getHeader("Host"));
   }
 
   @Test
   void testBadRequest() {
     try {
-      request = new Request(newBufferedReader("GET /"));
+      request = new Request(newBufferedReader("GET /"), 0);
     } catch (Exception e) {
       assertEquals("java.lang.ArrayIndexOutOfBoundsException: 2", e.getMessage());
     }
@@ -60,10 +61,16 @@ class RequestTest {
   @Test
   void testBadHeaders() {
     try {
-      request = new Request(newBufferedReader("GET / HTTP/1.1\r\nHOST=badrequest"));
+      request = new Request(newBufferedReader("GET / HTTP/1.1\r\nHOST=badrequest"), 0);
     } catch (Exception e) {
       assertEquals("java.lang.ArrayIndexOutOfBoundsException: 1", e.getMessage());
     }
+  }
+
+  @Test
+  void testInValidRequest() {
+    request = new Request(newBufferedReader("GET /"), 0);
+    assertFalse(request.validRequestLine());
   }
 
   private LineReader newBufferedReader(String request) {

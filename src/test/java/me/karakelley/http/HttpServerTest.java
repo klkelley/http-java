@@ -72,7 +72,7 @@ class HttpServerTest {
   }
 
   @Test
-  void testSends400GivenInvalidPath() throws Exception {
+  void testSends404GivenInvalidPath() throws Exception {
     httpServer = new HttpServer(0);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(() -> httpServer.start());
@@ -84,14 +84,14 @@ class HttpServerTest {
   }
 
   @Test
-  void testSends400GivenPartialRequest() throws Exception {
+  void testSends404GivenPartialRequest() throws Exception {
     httpServer = new HttpServer(4000);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(() -> httpServer.start());
     Thread.sleep(10);
     client.connectWithTry("127.0.0.1", 4000);
 
-    ArrayList<String> response = client.sendMessage("GET /\r\n");
+    ArrayList<String> response = client.sendMessage("GET / \r\n");
     assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
@@ -102,7 +102,8 @@ class HttpServerTest {
     executorService.submit(() -> httpServer.start());
     client.connectWithTry("127.0.0.1", 4000);
 
-    assertTrue(client.sendMessage("GIT / HTTP/1.1\r\n").contains("HTTP/1.1 404 Not Found"));
+    ArrayList<String> response = client.sendMessage("GIT / HTTP/1.1\r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -112,7 +113,8 @@ class HttpServerTest {
     executorService.submit(() -> httpServer.start());
     client.connectWithTry("127.0.0.1", 4000);
 
-    assertTrue(client.sendMessage("GET / HT\r\n").contains("HTTP/1.1 404 Not Found"));
+    ArrayList<String> response = client.sendMessage("GET / HT\r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -160,5 +162,41 @@ class HttpServerTest {
     } catch (Exception ex) {
       assertEquals("Connection refused (Connection refused)", ex.getMessage());
     }
+  }
+
+  @Test
+  void testRedirectsWhenPathIsRedirectme() throws Exception {
+    httpServer = new HttpServer(4000);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(() -> httpServer.start());
+    Thread.sleep(10);
+    client.connectWithTry("127.0.0.1", 4000);
+
+    ArrayList<String> response = client.sendMessage("GET /redirectme HTTP/1.1\r\n");
+    assertTrue(response.contains("HTTP/1.1 301 Moved Permanently") && response.contains("Location: http://localhost:4000/"));
+  }
+
+  @Test
+  void testRootPathOnlyAcceptsGet() throws Exception {
+    httpServer = new HttpServer(4000);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(() -> httpServer.start());
+    Thread.sleep(10);
+    client.connectWithTry("127.0.0.1", 4000);
+
+    ArrayList<String> response = client.sendMessage("POST / HTTP/1.1\r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
+  }
+
+  @Test
+  void testRedirectPathOnlyAcceptsGet() throws Exception {
+    httpServer = new HttpServer(4000);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(() -> httpServer.start());
+    Thread.sleep(10);
+    client.connectWithTry("127.0.0.1", 4000);
+
+    ArrayList<String> response = client.sendMessage("POST /redirectme HTTP/1.1\r\n");
+    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 }

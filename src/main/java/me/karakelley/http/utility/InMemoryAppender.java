@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryAppender extends AppenderBase<ILoggingEvent> {
-  private ArrayList<String> events = new ArrayList<>();
+  private final ArrayList<String> events = new ArrayList<>();
   private String prefix;
 
   @Override
@@ -19,10 +19,6 @@ public class InMemoryAppender extends AppenderBase<ILoggingEvent> {
 
   public List<String> getEvents() {
     return events;
-  }
-
-  public String getPrefix() {
-    return prefix;
   }
 
   public void setPrefix(String prefix) {
