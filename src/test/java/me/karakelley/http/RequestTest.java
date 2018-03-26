@@ -73,6 +73,30 @@ class RequestTest {
     assertFalse(request.validRequestLine());
   }
 
+  @Test
+  void testGetHostAndPort() {
+    request = new Request(newBufferedReader("GET / HTTP/1.1\r\n"), 4000);
+    assertEquals(request.getHostAndPort(), "localhost:4000" );
+  }
+
+  @Test
+  void testGetHostAndPortWithHostDefined() {
+    request = new Request(newBufferedReader("GET / HTTP/1.1\r\nHost: test.com\r\n"), 4000);
+    assertEquals(request.getHostAndPort(), "test.com:4000" );
+  }
+
+  @Test
+  void something() throws Exception {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("GET / HTTP/1.1\r\n".getBytes());
+    LineReader reader = new BufferedLineReader(new InputStreamReader(inputStream));
+    reader.close();
+    try {
+      new Request(reader, 0);
+    } catch (Exception e) {
+      assertEquals("java.io.IOException: Stream closed", e.getMessage());
+    }
+  }
+
   private LineReader newBufferedReader(String request) {
     ByteArrayInputStream inputStream = new ByteArrayInputStream(request.getBytes());
     return new BufferedLineReader(new InputStreamReader(inputStream));

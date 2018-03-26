@@ -1,5 +1,6 @@
 package me.karakelley.http.helpers;
 
+import me.karakelley.http.HttpServer;
 import me.karakelley.http.utility.BufferedLineReader;
 
 import java.io.*;
@@ -12,12 +13,12 @@ public class ClientHelper {
   private PrintWriter out;
   private BufferedReader in;
   int count = 0;
-  final int maxTries = 4;
+  final int maxTries = 5;
 
-  public void connectWithTry(String host, Integer port) throws InterruptedException, IOException {
+  public void connectWithTry(String host, HttpServer server) throws InterruptedException, IOException {
     try {
-      Thread.sleep(10);
-      connect(host, port);
+      Thread.sleep(20);
+      connect(host, server.getPortNumber());
     } catch (Exception ex) {
       count++;
       if (count > maxTries) {

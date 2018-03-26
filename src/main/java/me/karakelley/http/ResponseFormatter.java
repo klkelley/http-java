@@ -20,11 +20,12 @@ public class ResponseFormatter {
   public static String formatHeaders(Map<String, String> headers) {
     return headers.entrySet()
             .stream()
-            .map(entry -> entry.getKey() + ": " + entry.getValue() + "\r\n")
+            .map(entry -> entry.getKey() + ": " + entry.getValue() + CRLF)
             .collect(Collectors.joining());
   }
 
   public static String formatStatusLine(String statusLine) {
-    return PROTOCOL + statusLine + "\r\n";
+    return PROTOCOL + statusLine + CRLF;
   }
+
 }
