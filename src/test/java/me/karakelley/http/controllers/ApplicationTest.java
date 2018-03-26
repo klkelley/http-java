@@ -1,8 +1,9 @@
 package me.karakelley.http.controllers;
 
-import me.karakelley.http.PublicDirectory;
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
+import me.karakelley.http.*;
+import me.karakelley.http.FileSystem.FileFinderCache;
+import me.karakelley.http.FileSystem.PublicDirectory;
+import me.karakelley.http.FileSystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import me.karakelley.http.utility.BufferedLineReader;
 import me.karakelley.http.utility.LineReader;
@@ -30,13 +31,11 @@ class ApplicationTest {
       Path fileOne = TempFilesHelper.createTempFile(directory);
       Path fileTwo = TempFilesHelper.createTempFile(directory);
 
-
-      Controller controller = new Application(PublicDirectory.create(directory.toString()));
+      Controller controller = new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder())));
       Response response = controller.respond(new Request(newBufferedReader("GET / HTTP/1.1\r\n"), 0));
       assertTrue(response.getBody().split("", 2).length == 2);
     });
   }
-
 
   @Test
   void testRedirectMeRoute() {

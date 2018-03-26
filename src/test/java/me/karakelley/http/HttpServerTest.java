@@ -1,6 +1,9 @@
 package me.karakelley.http;
 
 import ch.qos.logback.classic.Logger;
+import me.karakelley.http.FileSystem.FileFinderCache;
+import me.karakelley.http.FileSystem.PublicDirectory;
+import me.karakelley.http.FileSystem.RealFileFinder;
 import me.karakelley.http.controllers.Application;
 import me.karakelley.http.helpers.ClientHelper;
 import me.karakelley.http.helpers.TempFilesHelper;
@@ -56,7 +59,7 @@ class HttpServerTest {
     ClientHelper client = new ClientHelper();
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
-    config.setController(new Application(new PublicDirectory("nodirectory")));
+    config.setController(new Application());
     HttpServer httpServer = new HttpServer(config);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
@@ -71,7 +74,7 @@ class HttpServerTest {
     ClientHelper client = new ClientHelper();
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
-    config.setController(new Application(new PublicDirectory("nodirectory")));
+    config.setController(new Application());
     HttpServer httpServer = new HttpServer(config);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
@@ -231,14 +234,30 @@ class HttpServerTest {
     assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
+
+  @Test
+  void testListSubPathDirectories() throws IOException, InterruptedException {
+    ClientHelper client = new ClientHelper();
+    ServerConfiguration config = new ServerConfiguration();
+    config.setPort("0");
+    config.setController(new Application(PublicDirectory.create("./src/test/", new FileFinderCache(new RealFileFinder()))));
+    HttpServer httpServer = new HttpServer(config);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(httpServer::start);
+    client.connectWithTry("127.0.0.1", httpServer);
+
+
+    ArrayList<String> response = client.sendMessage("GET /resources/ HTTP/1.1\r\n");
+    assertTrue(response.contains("HTTP/1.1 200 OK"));
+  }
+
   @Test
   void testDisplaysFilesAtRoot() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path fileOne = TempFilesHelper.createTempFile(directory);
-      Path fileTwo = TempFilesHelper.createTempFile(directory);
 
       ServerConfiguration config = new ServerConfiguration();
-      config.setController(new Application(PublicDirectory.create(directory.toString())));
+      config.setController(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config);
       ClientHelper client = new ClientHelper();
@@ -257,7 +276,8 @@ class HttpServerTest {
       } catch (IOException e) {
         e.printStackTrace();
       }
-      assertTrue(response.size() == 6);
+      assertTrue(response.contains("Content-Type: text/html"));
+      assertTrue(response.contains("<p>"+fileOne.getFileName()+"</p>"));
     });
   }
 
