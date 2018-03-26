@@ -11,6 +11,8 @@ import me.karakelley.http.utility.InMemoryAppender;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -136,9 +138,7 @@ class HttpServerTest {
       executorService1.submit(httpServerOnSamePort::start);
       try {
         client.connectWithTry("127.0.0.1", httpServer);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
+      } catch (InterruptedException | IOException e) {
         e.printStackTrace();
       }
 
@@ -147,7 +147,7 @@ class HttpServerTest {
   }
 
   @Test
-  void testPortTooLarge() throws Exception {
+  void testPortTooLarge() {
     withAppender(logger -> {
       ServerConfiguration config = new ServerConfiguration();
       config.setPort("45456456");
@@ -254,7 +254,7 @@ class HttpServerTest {
   @Test
   void testDisplaysFilesAtRoot() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory);
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
 
       ServerConfiguration config = new ServerConfiguration();
       config.setController(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
@@ -277,7 +277,37 @@ class HttpServerTest {
         e.printStackTrace();
       }
       assertTrue(response.contains("Content-Type: text/html"));
-      assertTrue(response.contains("<p>"+fileOne.getFileName()+"</p>"));
+      assertTrue(response.contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
+    });
+  }
+
+  @Test
+  void testReturnsFileContentsRequested() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createContents("Hello World", fileOne);
+      ServerConfiguration config = new ServerConfiguration();
+      config.setController(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config);
+      ClientHelper client = new ClientHelper();
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException | IOException e) {
+        e.printStackTrace();
+      }
+
+      ArrayList<String> response = null;
+      try {
+        response = client.sendMessage("GET /test1.txt HTTP/1.1\r\n");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      assertTrue(response.contains("Content-Type: text/plain"));
+      assertTrue(response.contains("Hello World"));
     });
   }
 

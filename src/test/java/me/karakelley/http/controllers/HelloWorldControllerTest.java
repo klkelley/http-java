@@ -17,14 +17,14 @@ class HelloWorldControllerTest {
   void testHelloWorld() {
     Controller controller = new HelloWorldController();
     Response response = controller.respond(new Request(newBufferedReader("GET / HTTP/1.1\r\n"), 0));
-    assertEquals(response.deliver(), "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World");
   }
 
   @Test
   void testInvalidRequest() {
     Controller controller = new HelloWorldController();
     Response response = controller.respond(new Request(newBufferedReader("POST / HTTP/1.1\r\n"), 0));
-    assertEquals(response.deliver(), "HTTP/1.1 404 Not Found\r\n\r\n");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 404 Not Found\r\n\r\n");
   }
 
   private LineReader newBufferedReader(String request) {
