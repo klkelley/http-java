@@ -82,10 +82,11 @@ public class Request {
 
   private void setRequestLine() {
     String requestLine;
-    String[] parsedLine;
+    String[] parsedLine = new String[2];
     try {
-      requestLine = reader.readLine();
-      parsedLine = requestLine.replaceAll("\\s+", " ").split(" ");
+      if ((requestLine = reader.readLine()) != null) {
+        parsedLine = requestLine.replaceAll("\\s+", " ").split(" ");
+      }
       if (parsedLine.length == 3) {
         requestMethod = parsedLine[0];
         requestPath = parsedLine[1];
@@ -95,5 +96,4 @@ public class Request {
       throw new RuntimeException(e);
     }
   }
-
 }
