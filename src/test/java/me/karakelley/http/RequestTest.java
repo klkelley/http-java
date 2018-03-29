@@ -8,8 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RequestTest {
   Request request;
@@ -86,7 +85,7 @@ class RequestTest {
   }
 
   @Test
-  void something() throws Exception {
+  void testIOExceptionThrownForClosedStream() throws Exception {
     ByteArrayInputStream inputStream = new ByteArrayInputStream("GET / HTTP/1.1\r\n".getBytes());
     LineReader reader = new BufferedLineReader(new InputStreamReader(inputStream));
     reader.close();
@@ -95,6 +94,17 @@ class RequestTest {
     } catch (Exception e) {
       assertEquals("java.io.IOException: Stream closed", e.getMessage());
     }
+  }
+
+  @Test
+  void testNullPointerExceptionIsNotThrown() {
+    ByteArrayInputStream inputStream = new ByteArrayInputStream("".getBytes());
+    LineReader reader = new BufferedLineReader(new InputStreamReader(inputStream));
+    try {
+      new Request(reader, 0);
+    } catch (Exception e) {
+      assertTrue(e.getMessage().isEmpty());
+    };
   }
 
   private LineReader newBufferedReader(String request) {
