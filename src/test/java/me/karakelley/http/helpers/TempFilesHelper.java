@@ -33,5 +33,4 @@ public class TempFilesHelper {
       throw new UncheckedIOException(e);
     }
   }
-
 }
