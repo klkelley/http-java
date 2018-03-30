@@ -37,9 +37,9 @@ public class HttpServer {
     }
   }
 
-  public void startConnection(Socket clientSocket) {
+  private void startConnection(Socket clientSocket) {
     try (LineReader reader = new BufferedLineReader(new InputStreamReader(clientSocket.getInputStream()));
-         PrintWriter out = new PrintWriter(clientSocket.getOutputStream())) {
+         OutputStream out = new DataOutputStream(clientSocket.getOutputStream())) {
       Request newRequest = new Request(reader, clientSocket.getLocalPort());
       sendResponse(newRequest, out);
     } catch (Exception e) {
@@ -47,9 +47,13 @@ public class HttpServer {
     }
   }
 
-  public void sendResponse(Request newRequest, PrintWriter out) {
+  private void sendResponse(Request newRequest, OutputStream out) {
     Response response = controller.respond(newRequest);
-    out.write(response.deliver());
+    try {
+      out.write(response.convertToBytes());
+    } catch (IOException e) {
+      logger.info("Ouch!", e);
+    }
   }
 
   public Integer getPortNumber() {

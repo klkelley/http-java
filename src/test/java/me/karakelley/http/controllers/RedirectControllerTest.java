@@ -17,14 +17,14 @@ class RedirectControllerTest {
   void testRedirect() {
     Controller controller = new RedirectController();
     Response response = controller.respond(new Request(newBufferedReader("GET /redirectme HTTP/1.1\r\n"), 4000));
-    assertEquals(response.deliver(), "HTTP/1.1 301 Moved Permanently\r\nLocation: http://localhost:4000/\r\n\r\n");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 301 Moved Permanently\r\nLocation: http://localhost:4000/\r\n\r\n");
   }
 
   @Test
   void testRedirectGivenInvalidMethod() {
     Controller controller = new RedirectController();
     Response response = controller.respond(new Request(newBufferedReader("POST /redirectme HTTP/1.1\r\n"), 0));
-    assertEquals(response.deliver(), "HTTP/1.1 404 Not Found\r\n\r\n");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 404 Not Found\r\n\r\n");
   }
 
   private LineReader newBufferedReader(String request) {

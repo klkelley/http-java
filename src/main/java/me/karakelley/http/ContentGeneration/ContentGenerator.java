@@ -5,6 +5,5 @@ import me.karakelley.http.FileSystem.PublicDirectory;
 import java.io.File;
 
 public interface ContentGenerator {
-  String displayDirectories(File fileName, PublicDirectory publicDirectory);
-  String displayFiles(String fileName);
+  String displayResources(File fileName, PublicDirectory publicDirectory);
 }

@@ -1,14 +1,16 @@
 package me.karakelley.http.FileSystem;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class PublicDirectory {
 
-  private final FileFinder fileFinderProxy;
   public static class PublicDirectoryMissingException extends RuntimeException {}
   public static class PublicDirectoryNotADirectoryException extends RuntimeException {}
 
@@ -22,17 +24,18 @@ public class PublicDirectory {
     return new PublicDirectory(path, fileFinderProxy);
   }
 
-  private static File documentRoot;
-  private static String path;
+  private File documentRoot;
+  private String path;
+  private final FileFinder fileFinderCache;
 
-  private PublicDirectory(String path, FileFinder fileFinderProxy) {
-    this.fileFinderProxy = fileFinderProxy;
+  private PublicDirectory(String path, FileFinder fileFinderCache) {
+    this.fileFinderCache = fileFinderCache;
     this.documentRoot = Paths.get(path).toFile();
     this.path = path;
   }
 
   public List<File> getDirectoriesAndFiles(String requestedResource) {
-    File directory = Paths.get(documentRoot + requestedResource).toFile();
+    File directory = getPath(requestedResource).toFile();
     if (resourceExists(requestedResource)) {
       return Arrays.stream(directory.listFiles())
               .filter(file -> file.isDirectory() || file.isFile())
@@ -43,11 +46,32 @@ public class PublicDirectory {
   }
 
   public boolean resourceExists(String path) {
-    return fileFinderProxy.resourceExists(documentRoot+path);
+    return fileFinderCache.resourceExists(documentRoot+path);
   }
 
   public String relativePath(File file) {
     return documentRoot.toURI().relativize(file.toURI()).getPath();
   }
 
+  public String getMimeType(String requestedResource) {
+    File path = getPath(requestedResource).toFile();
+    return URLConnection.guessContentTypeFromName(path.getName());
+  }
+
+  public boolean isFile(String requestedResource) {
+    return getPath(requestedResource).toFile().isFile();
+  }
+
+  public byte[] getFileContents(String requestedResource) {
+    Path file = getPath(requestedResource);
+    try {
+      return Files.readAllBytes(file);
+    } catch (IOException e) {
+      return "".getBytes();
+    }
+  }
+
+  private Path getPath(String requestedResource) {
+    return Paths.get(documentRoot + requestedResource);
+  }
 }

@@ -22,18 +22,18 @@ class ApplicationTest {
   void testRootRouteNoDirectory() {
     Controller controller = new Application();
     Response response = controller.respond(new Request(newBufferedReader("GET / HTTP/1.1\r\n"), 0));
-    assertEquals(response.deliver(), "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World");
   }
 
   @Test
   void testRootRouteWithDirectory() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      Path fileOne = TempFilesHelper.createTempFile(directory);
-      Path fileTwo = TempFilesHelper.createTempFile(directory);
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2");
 
       Controller controller = new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder())));
       Response response = controller.respond(new Request(newBufferedReader("GET / HTTP/1.1\r\n"), 0));
-      assertTrue(response.getBody().split("", 2).length == 2);
+      assertTrue(new String(response.getBody()).split("", 2).length == 2);
     });
   }
 
@@ -41,7 +41,7 @@ class ApplicationTest {
   void testRedirectMeRoute() {
     Controller controller = new Application();
     Response response = controller.respond(new Request(newBufferedReader("GET /redirectme HTTP/1.1\r\n"), 4000));
-    assertEquals(response.deliver(), "HTTP/1.1 301 Moved Permanently\r\nLocation: http://localhost:4000/\r\n\r\n");
+    assertEquals(new String(response.convertToBytes()), "HTTP/1.1 301 Moved Permanently\r\nLocation: http://localhost:4000/\r\n\r\n");
   }
 
   private LineReader newBufferedReader(String request) {
