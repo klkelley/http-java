@@ -1,9 +1,12 @@
 package me.karakelley.http;
 
-import me.karakelley.http.FileSystem.FileFinderCache;
-import me.karakelley.http.FileSystem.PublicDirectory;
-import me.karakelley.http.FileSystem.RealFileFinder;
-import me.karakelley.http.controllers.Application;
+import me.karakelley.http.filesystem.FileFinderCache;
+import me.karakelley.http.filesystem.PublicDirectory;
+import me.karakelley.http.filesystem.RealFileFinder;
+import me.karakelley.http.handlers.Application;
+import me.karakelley.http.server.ConnectionHandler;
+import me.karakelley.http.server.HttpServer;
+import me.karakelley.http.server.ServerConfiguration;
 import me.karakelley.http.utility.CommandLineArguments;
 import me.karakelley.http.utility.SystemExit;
 
@@ -14,8 +17,8 @@ class Main {
   public static void main(String[] args) {
     main(args, (argsHash1, serverConfiguration1) -> {
       if (!argsHash1.containsValue("nodirectory")) {
-        serverConfiguration1.setController(new Application(PublicDirectory.create(argsHash1.get("directory"), new FileFinderCache(new RealFileFinder()))));
-      } else serverConfiguration1.setController(new Application());
+        serverConfiguration1.setHandler(new Application(PublicDirectory.create(argsHash1.get("directory"), new FileFinderCache(new RealFileFinder()))));
+      } else serverConfiguration1.setHandler(new Application());
     });
   }
 
@@ -26,7 +29,7 @@ class Main {
 
     configurationBiConsumer.accept(argsHash, serverConfiguration);
 
-    HttpServer server = new HttpServer(serverConfiguration);
+    HttpServer server = new HttpServer(serverConfiguration, new RequestParser(new RequestValidator()), new ConnectionHandler());
     server.start();
   }
 }

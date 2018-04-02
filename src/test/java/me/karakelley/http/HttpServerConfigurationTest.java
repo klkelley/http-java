@@ -1,6 +1,7 @@
 package me.karakelley.http;
 
-import me.karakelley.http.controllers.Controller;
+import me.karakelley.http.handlers.Handler;
+import me.karakelley.http.server.ServerConfiguration;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,9 +19,9 @@ class HttpServerConfigurationTest {
 
   @Test
   void testGetController() {
-    Controller controller = request -> null;
+    Handler handler = request -> null;
     serverConfig = new ServerConfiguration();
-    serverConfig.setController(controller);
-    assertTrue(serverConfig.getController() == controller);
+    serverConfig.setHandler(handler);
+    assertTrue(serverConfig.getHandler() == handler);
   }
 }
