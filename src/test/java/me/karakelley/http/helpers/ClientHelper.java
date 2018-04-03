@@ -1,11 +1,12 @@
 package me.karakelley.http.helpers;
 
 import me.karakelley.http.server.HttpServer;
-import me.karakelley.http.utility.BufferedLineReader;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ClientHelper {
 
@@ -15,31 +16,45 @@ public class ClientHelper {
   int count = 0;
   final int maxTries = 5;
 
-  public void connectWithTry(String host, HttpServer server) throws InterruptedException, IOException {
-    try {
-      Thread.sleep(20);
-      connect(host, server.getPortNumber());
-    } catch (Exception ex) {
-      count++;
-      if (count > maxTries) {
-        throw ex;
+  public void connectWithTry(String host, HttpServer server) throws InterruptedException {
+    boolean connected = false;
+    while (count < maxTries) {
+      try {
+        Thread.sleep(50);
+        connected = connect(host, server.getPortNumber());
+        if (connected == true) ;
+        break;
+      } catch (Exception ex) {
+        count++;
+        if (count > maxTries) {
+          throw ex;
+        }
       }
     }
   }
 
-  public void connect(String host, int port) throws IOException {
-    clientSocket = new Socket(host, port);
-    out = new PrintWriter(clientSocket.getOutputStream(), true);
-    in = new BufferedLineReader(new InputStreamReader(clientSocket.getInputStream()));
+  public boolean connect(String host, int port) {
+    try {
+      clientSocket = new Socket(host, port);
+      out = new PrintWriter(clientSocket.getOutputStream(), true);
+      in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    } catch (Exception e) {
+      return false;
+    }
+    return true;
   }
 
-  public ArrayList<String> sendMessage(String message) throws IOException {
+  public List<String> sendMessage(String message) {
     out.println(message);
     ArrayList<String> messages = new ArrayList<>();
-    String lines;
-    while ((lines = in.readLine()) != null) {
-      messages.add(lines);
+    String content = "";
+    try {
+      while (in.ready() || content.length() == 0) {
+        content += (char) in.read();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-    return messages;
+    return Arrays.asList(content.split("\r\n"));
   }
 }

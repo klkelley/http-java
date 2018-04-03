@@ -1,6 +1,5 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.RequestParser;
 import me.karakelley.http.handlers.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +14,14 @@ public class HttpServer {
   private final static Logger logger = LoggerFactory.getLogger(HttpServer.class);
   private final Handler handler;
   private final ConnectionHandler connectionHandler;
-  private final RequestParser requestParser;
   private ServerSocket serverSocket;
+  private RequestReaderFactory readerFactory;
 
-  public HttpServer(ServerConfiguration serverConfiguration, RequestParser requestParser, ConnectionHandler connectionHandler) {
-    this.requestParser = requestParser;
+  public HttpServer(ServerConfiguration serverConfiguration, ConnectionHandler connectionHandler, RequestReaderFactory readerFactory) {
     this.connectionHandler = connectionHandler;
     this.port = serverConfiguration.getPort();
     this.handler = serverConfiguration.getHandler();
+    this.readerFactory = readerFactory;
   }
 
   public void start() {
@@ -31,7 +30,7 @@ public class HttpServer {
       logger.info("Started on port {}", getPortNumber());
       while (true) {
         Socket socket = serverSocket.accept();
-        CompletableFuture.runAsync(() -> connectionHandler.startConnection(socket, handler, requestParser));
+        CompletableFuture.runAsync(() -> connectionHandler.startConnection(socket, handler, readerFactory));
       }
     } catch (Exception e) {
       logger.info("Ouch!", e);

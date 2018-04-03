@@ -2,36 +2,31 @@ package me.karakelley.http.server;
 
 import me.karakelley.http.exceptions.InvalidRequestException;
 import me.karakelley.http.Request;
-import me.karakelley.http.RequestParser;
 import me.karakelley.http.Response;
 import me.karakelley.http.responses.BadRequest;
 import me.karakelley.http.handlers.Handler;
-import me.karakelley.http.utility.BufferedLineReader;
-import me.karakelley.http.utility.LineReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class ConnectionHandler {
   private final static Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
 
-  public void startConnection(Socket clientSocket, Handler handler, RequestParser requestParser) {
-    try (LineReader reader = new BufferedLineReader(new InputStreamReader(clientSocket.getInputStream()));
-         OutputStream out = new DataOutputStream(clientSocket.getOutputStream())) {
-      handleRequest(reader, out, handler, requestParser, clientSocket);
+  public void startConnection(Socket clientSocket, Handler handler, RequestReaderFactory readerFactory) {
+    try (InputStream reader = new BufferedInputStream(clientSocket.getInputStream(), clientSocket.getSendBufferSize());
+         OutputStream out = new BufferedOutputStream(clientSocket.getOutputStream())) {
+      HttpRequestReader requestReader = readerFactory.getReader(reader);
+      handleRequest(requestReader, out, handler, clientSocket.getLocalPort());
     } catch (Exception e) {
       logger.info("Ouch!", e);
     }
   }
 
-  private void handleRequest(LineReader reader, OutputStream out, Handler handler, RequestParser requestParser, Socket clientSocket) {
+  private void handleRequest(HttpRequestReader reader, OutputStream out, Handler handler, int port) {
     Response response;
     try {
-      Request request = requestParser.parse(reader).buildRequest(clientSocket.getLocalPort());
+      Request request = reader.read(port);
       response = handler.respond(request);
       new ResponseWriter(out, response).deliver();
     } catch (InvalidRequestException e) {

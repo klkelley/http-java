@@ -3,8 +3,7 @@ package me.karakelley.http.filesystem;
 import me.karakelley.http.exceptions.PublicDirectoryMissingException;
 import me.karakelley.http.exceptions.PublicDirectoryNotADirectoryException;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,7 +70,22 @@ public class PublicDirectory {
     }
   }
 
-  private Path getPath(String requestedResource) {
+  public void createFile(String path, byte[] contents) throws IOException {
+    File newFile = getPath(path).toFile();
+    if (newFile.exists() && (newFile.isFile() || newFile.isDirectory())) throw new IOException();
+
+    new File(newFile.getParentFile().getAbsolutePath()).mkdirs();
+
+    if (contents != null) {
+      try(FileOutputStream outputStream = new FileOutputStream(newFile)) {
+        outputStream.write(contents);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  public Path getPath(String requestedResource) {
     return Paths.get(documentRoot + requestedResource);
   }
 }
