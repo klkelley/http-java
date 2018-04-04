@@ -1,6 +1,6 @@
 package me.karakelley.http.helpers;
 
-import me.karakelley.http.HttpServer;
+import me.karakelley.http.server.HttpServer;
 import me.karakelley.http.utility.BufferedLineReader;
 
 import java.io.*;

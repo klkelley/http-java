@@ -1,15 +1,14 @@
 package me.karakelley.http;
 
-import me.karakelley.http.FileSystem.FileFinderCache;
-import me.karakelley.http.FileSystem.PublicDirectory;
-import me.karakelley.http.FileSystem.RealFileFinder;
+import me.karakelley.http.exceptions.PublicDirectoryMissingException;
+import me.karakelley.http.exceptions.PublicDirectoryNotADirectoryException;
+import me.karakelley.http.filesystem.FileFinderCache;
+import me.karakelley.http.filesystem.PublicDirectory;
+import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PublicDirectoryTest {
   @Test
   void testMissingDirectory() {
-    assertThrows(PublicDirectory.PublicDirectoryMissingException.class, () -> {
+    assertThrows(PublicDirectoryMissingException.class, () -> {
       PublicDirectory.create(UUID.randomUUID().toString(), new FileFinderCache(new RealFileFinder()));
     });
   }
@@ -30,7 +29,7 @@ class PublicDirectoryTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
 
-      assertThrows(PublicDirectory.PublicDirectoryNotADirectoryException.class, () -> {
+      assertThrows(PublicDirectoryNotADirectoryException.class, () -> {
         PublicDirectory.create(file.toString(), new FileFinderCache(new RealFileFinder()));
       });
     });
