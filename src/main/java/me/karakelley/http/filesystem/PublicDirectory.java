@@ -34,18 +34,14 @@ public class PublicDirectory {
   }
 
   public List<File> getDirectoriesAndFiles(String requestedResource) {
-    File directory = getPath(requestedResource).toFile();
-    if (resourceExists(requestedResource)) {
-      return Arrays.stream(directory.listFiles())
-              .filter(file -> file.isDirectory() || file.isFile())
-              .collect(Collectors.toList());
-    } else {
-      return new ArrayList<>();
-    }
+    File directory = normalizeFullPath(requestedResource);
+    return Arrays.stream(directory.listFiles())
+            .filter(file -> file.isDirectory() || file.isFile())
+            .collect(Collectors.toList());
   }
 
   public boolean resourceExists(String path) {
-    return fileFinderCache.resourceExists(documentRoot+path);
+    return isValidPath(path) && fileFinderCache.resourceExists(normalizedDocumentRoot() + path);
   }
 
   public String relativePath(File file) {
@@ -77,7 +73,7 @@ public class PublicDirectory {
     new File(newFile.getParentFile().getAbsolutePath()).mkdirs();
 
     if (contents != null) {
-      try(FileOutputStream outputStream = new FileOutputStream(newFile)) {
+      try (FileOutputStream outputStream = new FileOutputStream(newFile)) {
         outputStream.write(contents);
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -97,4 +93,28 @@ public class PublicDirectory {
       throw new RuntimeException(e);
     }
   }
+
+  private boolean isValidPath(String requestedPath) {
+    String canonicalPath = normalizeFullPath(requestedPath).toString();
+
+    try {
+      return canonicalPath.startsWith(normalizedDocumentRoot().toFile().getCanonicalFile().toString());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private File normalizeFullPath(String requestPath) {
+    try {
+      return Paths.get(normalizedDocumentRoot() + requestPath).toFile().getCanonicalFile();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Path normalizedDocumentRoot() {
+    return documentRoot.toPath().normalize();
+  }
+
 }
+

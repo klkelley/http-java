@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,13 +76,6 @@ class PublicDirectoryTest {
   }
 
   @Test
-  void testNoFilesInDirectory() {
-    PublicDirectory publicDirectory = PublicDirectory.create("/", new FileFinderCache(new RealFileFinder()));
-
-    assertEquals(new ArrayList<>(), publicDirectory.getDirectoriesAndFiles("/somewhere"));
-  }
-
-  @Test
   void testGetMimeType() {
     TempFilesHelper.withTempDirectory(directory -> {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
@@ -142,7 +134,6 @@ class PublicDirectoryTest {
       } catch (IOException e) {
         e.printStackTrace();
       }
-
       assertTrue(publicDirectory.resourceExists("/testing123.txt"));
     });
   }
@@ -156,7 +147,6 @@ class PublicDirectoryTest {
       } catch (IOException e) {
         e.printStackTrace();
       }
-
       assertTrue(publicDirectory.resourceExists("/newpath/testing123.txt"));
     });
   }
@@ -197,4 +187,19 @@ class PublicDirectoryTest {
     });
   }
 
+  @Test
+  void testValidPath() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      assertEquals(true, publicDirectory.resourceExists("testing/../testing"));
+    });
+  }
+
+  @Test
+  void testInvalidPath() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      assertFalse(publicDirectory.resourceExists("/testing/../../"));
+    });
+  }
 }

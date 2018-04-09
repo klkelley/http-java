@@ -39,9 +39,7 @@ class HttpRequestReaderTest {
 
   @Test
   void testRequestHasAPathOfRedirectme() {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("POST /redirectme HTTP/1.1\r\n\r\n".getBytes());
-    HttpRequestReader requestReader = new HttpRequestReader(inputStream);
-    Request request = requestReader.read(0);
+    Request request = parse("POST /redirectme HTTP/1.1\r\n\r\n");
     assertEquals("/redirectme", request.getPath());
   }
 
@@ -68,7 +66,6 @@ class HttpRequestReaderTest {
     headers.put("Content-Type", "text/plain");
     assertEquals(headers, request.getHeaders());
   }
-
 
   @Test
   void testRequestHasMultipleHeaders() {

@@ -415,6 +415,31 @@ class HttpServerTest {
     });
   }
 
+  @Test
+  void test404ReturnedForAttemptedDirectoryTraversal() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createContents("Hello World", fileOne);
+      ServerConfiguration config = new ServerConfiguration();
+      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ClientHelper client = new ClientHelper();
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      List<String> response;
+      response = client.sendMessage("GET /../ HTTP/1.1\r\n\r\n");
+      assertTrue(response.contains("HTTP/1.1 404 Not Found"));
+    });
+  }
+
   private void withAppender(Consumer<Logger> loggerConsumer) {
     try {
       Logger rootLogger = (Logger) LoggerFactory.getLogger("ROOT");
