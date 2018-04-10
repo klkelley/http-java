@@ -19,6 +19,7 @@ public class Application implements Handler {
     this.publicDirectory = publicDirectory;
     router.route(HttpMethod.POST, new NewResourceHandler(publicDirectory));
     router.route(HttpMethod.GET, new StaticFilesHandler(publicDirectory, new HtmlPresenter()));
+    router.route(HttpMethod.PUT, new UpdateResourceHandler(publicDirectory));
     setupCommonRoutes();
   }
 

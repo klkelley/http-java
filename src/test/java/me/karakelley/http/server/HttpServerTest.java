@@ -388,6 +388,33 @@ class HttpServerTest {
     });
   }
 
+  @Test
+  void sends200ForPutRequestForExistingResource() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createContents("Hello", file);
+      ServerConfiguration config = new ServerConfiguration();
+      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ClientHelper client = new ClientHelper();
+      ClientHelper client2 = new ClientHelper();
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+        client2.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      List<String> response = client.sendMessage("PUT /test1.txt HTTP/1.1\r\nContent-Length: 11\r\n\r\nHello World");
+      List<String> getResponse = client2.sendMessage("GET /test1.txt HTTP/1.1\r\n\r\n");
+      assertTrue(response.contains("HTTP/1.1 200 OK"));
+      assertTrue(getResponse.contains("Hello World"));
+    });
+  }
+
   private void withAppender(Consumer<Logger> loggerConsumer) {
     try {
       Logger rootLogger = (Logger) LoggerFactory.getLogger("ROOT");
