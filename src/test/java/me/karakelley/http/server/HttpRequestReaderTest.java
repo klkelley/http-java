@@ -5,7 +5,7 @@ import me.karakelley.http.Request;
 import me.karakelley.http.exceptions.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 

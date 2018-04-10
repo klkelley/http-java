@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -19,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CommandLineArgumentsTest {
 
   private Exit exitMock;
-  private InMemoryAppender inMemoryAppender;
 
   @BeforeEach
   void setUp() {
@@ -33,26 +33,26 @@ class CommandLineArgumentsTest {
 
   @Test
   void testInvalidPortThrowsException() {
-    withAppender(logger -> {
+    List<String> events = withCapturedLogging(() ->  {
       CommandLineArguments.parse(new String[]{"-p", "badinput"}, exitMock);
-      assertTrue(inMemoryAppender.getEvents().contains("java.lang.NumberFormatException: For input string: \"badinput\""));
     });
+    assertTrue(events.contains("java.lang.NumberFormatException: For input string: \"badinput\""));
   }
 
   @Test
   void testThrowsExceptionWithTooManyArguments() {
-    withAppender(logger -> {
+    List<String> events = withCapturedLogging(() ->  {
       CommandLineArguments.parse(new String[]{"-p", "badinput", "otherstuff"}, exitMock);
-      assertTrue(inMemoryAppender.getEvents().contains("java.lang.RuntimeException: Invalid number of arguments"));
     });
+    assertTrue(events.contains("java.lang.RuntimeException: Invalid number of arguments"));
   }
 
   @Test
   void testThrowsExceptionWithTooLittleArguments() {
-    withAppender(logger -> {
+    List<String> events = withCapturedLogging(() ->  {
       CommandLineArguments.parse(new String[]{"5000"}, exitMock);
-      assertTrue(inMemoryAppender.getEvents().contains("java.lang.RuntimeException: Invalid number of arguments"));
     });
+    assertTrue(events.contains("java.lang.RuntimeException: Invalid number of arguments"));
   }
 
   @Test
@@ -90,17 +90,13 @@ class CommandLineArgumentsTest {
     assertTrue(ExitMock.exitCalled > 0);
   }
 
-  private void withAppender(Consumer<Logger> loggerConsumer) {
-    try {
-      Logger rootLogger = (Logger) LoggerFactory.getLogger("ROOT");
-      loggerConsumer = rootLogger1 -> {
-        inMemoryAppender = (InMemoryAppender) rootLogger1.getAppender("InMemoryAppender");
-        inMemoryAppender.setPrefix("test");
-        inMemoryAppender.start();
-      };
-      loggerConsumer.accept(rootLogger);
-    } finally {
-      inMemoryAppender.stop();
-    }
+  private List<String> withCapturedLogging(Runnable runnable) {
+    Logger logger = (Logger) LoggerFactory.getLogger("ROOT");
+    InMemoryAppender inMemoryAppender = (InMemoryAppender) logger.getAppender("InMemoryAppender");
+    inMemoryAppender.setPrefix("test");
+    inMemoryAppender.start();
+    runnable.run();
+    inMemoryAppender.stop();
+    return inMemoryAppender.getEvents();
   }
 }
