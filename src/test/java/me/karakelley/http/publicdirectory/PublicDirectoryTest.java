@@ -184,4 +184,17 @@ class PublicDirectoryTest {
       assertEquals(bytes.length, otherBytes.length);
     });
   }
+
+  @Test
+  void testUpdateContentsOfFile() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createContents("Hello", file);
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+
+      publicDirectory.updateFileContents("/test1.txt", "Hello World".getBytes());
+      assertEquals("Hello World", new String(publicDirectory.getFileContents("/test1.txt")));
+    });
+  }
+
 }

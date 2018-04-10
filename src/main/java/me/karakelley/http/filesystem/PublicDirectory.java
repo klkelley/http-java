@@ -88,4 +88,13 @@ public class PublicDirectory {
   public Path getPath(String requestedResource) {
     return Paths.get(documentRoot + requestedResource);
   }
+
+  public void updateFileContents(String path, byte[] contents) {
+    File newFile = getPath(path).toFile();
+    try (FileOutputStream outputStream = new FileOutputStream(newFile, false)) {
+      outputStream.write(contents);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
