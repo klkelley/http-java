@@ -4,6 +4,7 @@ import me.karakelley.http.contentpresenter.ContentPresenter;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.Request;
 import me.karakelley.http.Response;
+import me.karakelley.http.responses.NotFound;
 import me.karakelley.http.responses.Ok;
 
 import java.io.File;
@@ -23,9 +24,11 @@ public class StaticFilesHandler implements Handler {
 
   public Response respond(Request request) {
     String requestedResource = request.getPath();
-
-    Response response = new Ok();
-    return serveResponse(response, requestedResource);
+    Response response;
+    if (publicDirectory.resourceExists(requestedResource)) {
+      response = new Ok();
+      return serveResponse(response, requestedResource);
+    } else return new NotFound();
   }
 
   private Response serveResponse(Response response, String requestedResource) {

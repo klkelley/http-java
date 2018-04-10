@@ -1,4 +1,4 @@
-package me.karakelley.http;
+package me.karakelley.http.publicdirectory;
 
 import me.karakelley.http.exceptions.PublicDirectoryMissingException;
 import me.karakelley.http.exceptions.PublicDirectoryNotADirectoryException;
@@ -9,6 +9,8 @@ import me.karakelley.http.helpers.TempFilesHelper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +130,58 @@ class PublicDirectoryTest {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
 
       assertEquals("Hello World", new String(publicDirectory.getFileContents("/test1.txt")));
+    });
+  }
+
+  @Test
+  void testCreateNewFile() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      try {
+        publicDirectory.createFile("/testing123.txt", "hello world".getBytes());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      assertTrue(publicDirectory.resourceExists("/testing123.txt"));
+    });
+  }
+
+  @Test
+  void testCreateNewFileWithNewdirectory() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      try {
+        publicDirectory.createFile("/newpath/testing123.txt", "hello world".getBytes());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      assertTrue(publicDirectory.resourceExists("/newpath/testing123.txt"));
+    });
+  }
+
+  @Test
+  void testBytesAreEqual() {
+    TempFilesHelper.withTempDirectory(directory ->  {
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+
+      byte[] bytes = new byte[0];
+      try {
+        bytes = Files.readAllBytes(file);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      try {
+        publicDirectory.createFile(String.valueOf(file.toAbsolutePath()), "hello world".getBytes());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      byte[] otherBytes = publicDirectory.getFileContents("/test1");
+      assertEquals(bytes.length, otherBytes.length);
     });
   }
 }

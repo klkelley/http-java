@@ -1,12 +1,10 @@
 package me.karakelley.http.helpers;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.function.Consumer;
 
 public class TempFilesHelper {
@@ -19,7 +17,10 @@ public class TempFilesHelper {
       } finally {
         Files.list(dir).forEach(filePath -> {
           try {
-            Files.delete(filePath);
+            Files.walk(filePath)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
           } catch (IOException ignored) {
           }
         });

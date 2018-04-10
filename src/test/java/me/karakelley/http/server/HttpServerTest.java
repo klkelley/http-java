@@ -1,4 +1,4 @@
-package me.karakelley.http;
+package me.karakelley.http.server;
 
 import ch.qos.logback.classic.Logger;
 import me.karakelley.http.filesystem.FileFinderCache;
@@ -7,16 +7,13 @@ import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.handlers.Application;
 import me.karakelley.http.helpers.ClientHelper;
 import me.karakelley.http.helpers.TempFilesHelper;
-import me.karakelley.http.server.ConnectionHandler;
-import me.karakelley.http.server.HttpServer;
-import me.karakelley.http.server.ServerConfiguration;
 import me.karakelley.http.utility.InMemoryAppender;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -26,17 +23,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpServerTest {
   private static InMemoryAppender inMemoryAppender;
 
+
   @Test
   void testSendsResponseGivenValidRequest() throws Exception {
     ClientHelper client = new ClientHelper();
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
-    ArrayList<String> response = client.sendMessage("GET / HTTP/1.1 \r\n");
+    List<String> response = client.sendMessage("GET / HTTP/1.1\r\n\r\n");
 
     assertTrue(response.contains("HTTP/1.1 200 OK"));
     assertTrue(response.contains("Hello World"));
@@ -48,27 +46,27 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+    ExecutorService executorService = Executors.newFixedThreadPool(5);
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
-    ArrayList<String> response = client.sendMessage("GET / HTTP/1.1 \r\n");
+    List<String> response = client.sendMessage("GET / HTTP/1.1\r\n\r\n");
 
     assertTrue(response.contains("Content-Type: text/plain") && response.contains("Content-Length: 11"));
   }
 
   @Test
-  void testSends400GivenInvalidPath() throws Exception {
+  void testSends404GivenInvalidPath() throws Exception {
     ClientHelper client = new ClientHelper();
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("GET /nowhere HTTP/1.1 \r\n");
+    List<String> response = client.sendMessage("GET /nowhere HTTP/1.1\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
@@ -78,12 +76,12 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("GET / \r\n");
+    List<String> response = client.sendMessage("GET /\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 400 Bad Request"));
   }
 
@@ -93,12 +91,12 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("GIT / HTTP/1.1\r\n");
+    List<String> response = client.sendMessage("GIT / HTTP/1.1\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 400 Bad Request"));
   }
 
@@ -108,12 +106,12 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("GET / HT\r\n");
+    List<String> response = client.sendMessage("GET / HT\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 400 Bad Request"));
   }
 
@@ -125,7 +123,7 @@ class HttpServerTest {
       config.setPort("0");
       config.setHandler(new Application());
       config.setPort("4000");
-      HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       executorService.submit(httpServer::start);
       try {
@@ -134,12 +132,12 @@ class HttpServerTest {
         e.printStackTrace();
       }
 
-      HttpServer httpServerOnSamePort = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
-      ExecutorService executorService1 = Executors.newFixedThreadPool(1);
+      HttpServer httpServerOnSamePort = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ExecutorService executorService1 = Executors.newSingleThreadExecutor();
       executorService1.submit(httpServerOnSamePort::start);
       try {
         client.connectWithTry("127.0.0.1", httpServer);
-      } catch (InterruptedException | IOException e) {
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
 
@@ -153,7 +151,7 @@ class HttpServerTest {
       ServerConfiguration config = new ServerConfiguration();
       config.setPort("45456456");
       config.setHandler(new Application());
-      HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       executorService.submit(httpServer::start);
       int count = 0;
@@ -179,7 +177,7 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
 
@@ -196,28 +194,13 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("4000");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+    ExecutorService executorService = Executors.newFixedThreadPool(1);
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("GET /redirectme HTTP/1.1\r\n");
+    List<String> response = client.sendMessage("GET /redirectme HTTP/1.1\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 301 Moved Permanently") && response.contains("Location: http://localhost:4000/"));
-  }
-
-  @Test
-  void testRootPathOnlyAcceptsGet() throws Exception {
-    ClientHelper client = new ClientHelper();
-    ServerConfiguration config = new ServerConfiguration();
-    config.setPort("0");
-    config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-    executorService.submit(httpServer::start);
-    client.connectWithTry("127.0.0.1", httpServer);
-
-    ArrayList<String> response = client.sendMessage("POST / HTTP/1.1\r\n");
-    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
   }
 
   @Test
@@ -226,13 +209,28 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application());
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
-    ArrayList<String> response = client.sendMessage("POST /redirectme HTTP/1.1\r\n");
-    assertTrue(response.contains("HTTP/1.1 404 Not Found"));
+    List<String> response = client.sendMessage("POST /redirectme HTTP/1.1\r\n\r\n");
+    assertTrue(response.contains("HTTP/1.1 405 Method Not Allowed"));
+  }
+
+  @Test
+  void test405WhenPostingToRoot() throws Exception {
+    ClientHelper client = new ClientHelper();
+    ServerConfiguration config = new ServerConfiguration();
+    config.setPort("0");
+    config.setHandler(new Application());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(httpServer::start);
+    client.connectWithTry("127.0.0.1", httpServer);
+
+    List<String> response = client.sendMessage("POST / HTTP/1.1\r\n\r\n");
+    assertTrue(response.contains("HTTP/1.1 405 Method Not Allowed"));
   }
 
   @Test
@@ -241,13 +239,13 @@ class HttpServerTest {
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
     config.setHandler(new Application(PublicDirectory.create("./src/test/", new FileFinderCache(new RealFileFinder()))));
-    HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
     client.connectWithTry("127.0.0.1", httpServer);
 
 
-    ArrayList<String> response = client.sendMessage("GET /resources/ HTTP/1.1\r\n");
+    List<String> response = client.sendMessage("GET /resources/ HTTP/1.1\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 200 OK"));
   }
 
@@ -259,25 +257,48 @@ class HttpServerTest {
       ServerConfiguration config = new ServerConfiguration();
       config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
       config.setPort("0");
-      HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
 
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       executorService.submit(httpServer::start);
       try {
         client.connectWithTry("127.0.0.1", httpServer);
-      } catch (InterruptedException | IOException e) {
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
 
-      ArrayList<String> response = null;
-      try {
-        response = client.sendMessage("GET / HTTP/1.1\r\n");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      List<String> response = null;
+      response = client.sendMessage("GET / HTTP/1.1\r\n\r\n");
+
       assertTrue(response.contains("Content-Type: text/html"));
       assertTrue(response.contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
+    });
+  }
+
+  @Test
+  void testSend404WhenPathDoesNotExist() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+
+      ServerConfiguration config = new ServerConfiguration();
+      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ClientHelper client = new ClientHelper();
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      List<String> response = null;
+      response = client.sendMessage("GET /hey HTTP/1.1\r\n\r\n");
+
+      assertTrue(response.contains("HTTP/1.1 404 Not Found"));
     });
   }
 
@@ -289,25 +310,81 @@ class HttpServerTest {
       ServerConfiguration config = new ServerConfiguration();
       config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
       config.setPort("0");
-      HttpServer httpServer = new HttpServer(config, new RequestParser(new RequestValidator()), new ConnectionHandler());
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
 
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       executorService.submit(httpServer::start);
       try {
         client.connectWithTry("127.0.0.1", httpServer);
-      } catch (InterruptedException | IOException e) {
+      } catch (InterruptedException e) {
         e.printStackTrace();
       }
 
-      ArrayList<String> response = null;
-      try {
-        response = client.sendMessage("GET /test1.txt HTTP/1.1\r\n");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      List<String> response = null;
+      response = client.sendMessage("GET /test1.txt HTTP/1.1\r\n\r\n");
+
       assertTrue(response.contains("Content-Type: text/plain"));
       assertTrue(response.contains("Hello World"));
+    });
+  }
+
+  @Test
+  void testCreatesFileWithPostRequest() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      ServerConfiguration config = new ServerConfiguration();
+      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ClientHelper client = new ClientHelper();
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      List<String> response = null;
+      response = client.sendMessage("POST /testmore.txt HTTP/1.1\r\nContent-Length: 3\r\n\r\nhey");
+      assertTrue(response.contains("HTTP/1.1 201 Created"));
+    });
+  }
+
+  @Test
+  void testPostFollowedByGetRequest() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      ServerConfiguration config = new ServerConfiguration();
+      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setPort("0");
+      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      ClientHelper client = new ClientHelper();
+      ClientHelper client2 = new ClientHelper();
+
+      ExecutorService executorService = Executors.newSingleThreadExecutor();
+      executorService.submit(httpServer::start);
+      try {
+        client.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      try {
+        client2.connectWithTry("127.0.0.1", httpServer);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      List<String> postResponse;
+      List<String> getResponse;
+      postResponse= client.sendMessage("POST /testmore.txt HTTP/1.1\r\nContent-Length: 3\r\n\r\nhey");
+      getResponse= client2.sendMessage("GET /testmore.txt HTTP/1.1\r\n\r\n");
+
+
+      assertTrue(postResponse.contains("HTTP/1.1 201 Created"));
+      assertTrue(getResponse.contains("hey") && getResponse.contains("HTTP/1.1 200 OK"));
     });
   }
 

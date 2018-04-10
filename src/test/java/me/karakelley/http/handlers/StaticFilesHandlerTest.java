@@ -7,6 +7,7 @@ import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
+import me.karakelley.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -24,7 +25,7 @@ class StaticFilesHandlerTest {
 
       ContentPresenter contentPresenter = new HtmlPresenter();
       Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request("GET", "/", "HTTP/1.1", null, 0));
+      Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", null, null,0));
 
       assertTrue(new String(response.getBody()).split("", 2).length == 2);
     });
@@ -37,7 +38,7 @@ class StaticFilesHandlerTest {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
       ContentPresenter contentPresenter = new HtmlPresenter();
       Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request("GET", "/", "HTTP/1.1", null, 0));
+      Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", null, null, 0));
 
       assertTrue(new String(response.getBody()).contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
     });
@@ -52,7 +53,7 @@ class StaticFilesHandlerTest {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
       ContentPresenter contentPresenter = new HtmlPresenter();
       Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request("GET", "/test1.txt",  "HTTP/1.1", null, 0));
+      Response response = handler.respond(new Request(HttpMethod.GET, "/test1.txt",  "HTTP/1.1", null, null, 0));
       assertEquals("Hello World", new String(response.getBody()));
     });
   }

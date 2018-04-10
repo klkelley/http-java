@@ -4,9 +4,7 @@ import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.handlers.Application;
-import me.karakelley.http.server.ConnectionHandler;
-import me.karakelley.http.server.HttpServer;
-import me.karakelley.http.server.ServerConfiguration;
+import me.karakelley.http.server.*;
 import me.karakelley.http.utility.CommandLineArguments;
 import me.karakelley.http.utility.SystemExit;
 
@@ -29,7 +27,7 @@ class Main {
 
     configurationBiConsumer.accept(argsHash, serverConfiguration);
 
-    HttpServer server = new HttpServer(serverConfiguration, new RequestParser(new RequestValidator()), new ConnectionHandler());
+    HttpServer server = new HttpServer(serverConfiguration, new ConnectionHandler(), new RequestReaderFactory());
     server.start();
   }
 }
