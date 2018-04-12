@@ -1,6 +1,11 @@
 # HTTP-Server[![Build Status](https://travis-ci.org/klkelley/http-java.svg?branch=master)](https://travis-ci.org/klkelley/http-java)
 
 
+## Visit on the Web
+
+[karakelley.rocks](http://karakelley.rocks:8080/)
+
+
 ## Using Docker 
 ### Get latest docker image 
 
@@ -25,12 +30,13 @@ There are three different types of tagged images:
 that do not change.  
 
 ### Run project 
-The default port is set to 0 and can be set to specific port by passing a port number as an 
-argument.
+Running the below command will automatically pull and run the image specified
 
 ```
-$ docker run klkelley/http-server:master.latest -p <OPTIONAL PORT NUMBER>
+$ docker run -it --rm -p 8080:8080 -v <DIRECTORY YOU WANT TO SERVE>:<PATH WHERE DIRECTORY WILL BE MOUNTED> klkelley/http-server:master.latest --port 8080 --directory <MOUNTED PATH>
 ```
+
+An example: `ex. docker run -it --rm -p 8080:8080 -v /Users/karakelley/:/var/public klkelley/http-server:master.latest --port 8080 --directory /var/public`
 
 ## Using Gradle 
  
@@ -45,7 +51,7 @@ The default port is set to 0 and can be set to specific port by passing a port n
 argument.
 
 ```
-$ java -jar build/libs/http-server.jar -p <OPTIONAL PORT NUMBER>
+$ java -jar build/libs/http-server.jar -p <OPTIONAL PORT NUMBER> -d <OPTIONAL DIRECTORY PATH>
 ```
 
 ### Run tests
