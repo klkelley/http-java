@@ -5,7 +5,8 @@ import me.karakelley.http.exceptions.InvalidRequestException;
 public enum HttpMethod {
   GET,
   POST,
-  PUT;
+  PUT,
+  DELETE;
 
   public static HttpMethod fromString(String s) {
     switch (s) {
@@ -17,6 +18,9 @@ public enum HttpMethod {
 
       case "PUT":
         return PUT;
+
+      case "DELETE":
+          return DELETE;
 
       default:
         throw new InvalidRequestException("ouch");
