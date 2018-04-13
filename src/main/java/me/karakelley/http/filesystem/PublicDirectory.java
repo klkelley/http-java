@@ -13,22 +13,20 @@ import java.util.stream.Collectors;
 
 public class PublicDirectory {
 
-  public static PublicDirectory create(String path, FileFinder fileFinderProxy) {
+  public static PublicDirectory create(String path) {
     if (!Files.exists(Paths.get(path)))
       throw new PublicDirectoryMissingException("Directory does not exist!");
 
     if (!Files.isDirectory(Paths.get(path)))
       throw new PublicDirectoryNotADirectoryException("Not a directory!");
 
-    return new PublicDirectory(path, fileFinderProxy);
+    return new PublicDirectory(path);
   }
 
   private File documentRoot;
   private String path;
-  private final FileFinder fileFinderCache;
 
-  private PublicDirectory(String path, FileFinder fileFinderCache) {
-    this.fileFinderCache = fileFinderCache;
+  private PublicDirectory(String path) {
     this.documentRoot = Paths.get(path).toFile();
     this.path = path;
   }
@@ -41,7 +39,13 @@ public class PublicDirectory {
   }
 
   public boolean resourceExists(String path) {
-    return isValidPath(path) && fileFinderCache.resourceExists(normalizedDocumentRoot() + path);
+    File resource = null;
+    try {
+      resource = Paths.get(normalizedDocumentRoot() + path).toFile().getCanonicalFile();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return isValidPath(path) && (resource.exists()) && resource.isDirectory() || resource.isFile();
   }
 
   public String relativePath(File file) {
@@ -115,6 +119,5 @@ public class PublicDirectory {
   private Path normalizedDocumentRoot() {
     return documentRoot.toPath().normalize();
   }
-
 }
 

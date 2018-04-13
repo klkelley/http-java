@@ -1,8 +1,6 @@
 package me.karakelley.http;
 
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.handlers.Application;
 import me.karakelley.http.server.*;
 import me.karakelley.http.utility.CommandLineArguments;
@@ -15,7 +13,7 @@ class Main {
   public static void main(String[] args) {
     main(args, (argsHash1, serverConfiguration1) -> {
       if (!argsHash1.containsValue("nodirectory")) {
-        serverConfiguration1.setHandler(new Application(PublicDirectory.create(argsHash1.get("directory"), new FileFinderCache(new RealFileFinder()))));
+        serverConfiguration1.setHandler(new Application(PublicDirectory.create(argsHash1.get("directory"))));
       } else serverConfiguration1.setHandler(new Application());
     });
   }

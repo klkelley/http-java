@@ -1,9 +1,7 @@
 package me.karakelley.http.server;
 
 import ch.qos.logback.classic.Logger;
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.handlers.Application;
 import me.karakelley.http.helpers.ClientHelper;
 import me.karakelley.http.helpers.TempFilesHelper;
@@ -238,7 +236,7 @@ class HttpServerTest {
     ClientHelper client = new ClientHelper();
     ServerConfiguration config = new ServerConfiguration();
     config.setPort("0");
-    config.setHandler(new Application(PublicDirectory.create("./src/test/", new FileFinderCache(new RealFileFinder()))));
+    config.setHandler(new Application(PublicDirectory.create("./src/test/")));
     HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(httpServer::start);
@@ -255,7 +253,7 @@ class HttpServerTest {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
 
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -282,7 +280,7 @@ class HttpServerTest {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
 
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -308,7 +306,7 @@ class HttpServerTest {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello World", fileOne);
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -334,7 +332,7 @@ class HttpServerTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -357,7 +355,7 @@ class HttpServerTest {
   void testPostFollowedByGetRequest() {
     TempFilesHelper.withTempDirectory(directory -> {
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -394,7 +392,7 @@ class HttpServerTest {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();
@@ -421,7 +419,7 @@ class HttpServerTest {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello World", fileOne);
       ServerConfiguration config = new ServerConfiguration();
-      config.setHandler(new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()))));
+      config.setHandler(new Application(PublicDirectory.create(directory.toString())));
       config.setPort("0");
       HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
       ClientHelper client = new ClientHelper();

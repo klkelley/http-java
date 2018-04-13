@@ -1,9 +1,7 @@
 package me.karakelley.http.handlers;
 
 import me.karakelley.http.*;
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import me.karakelley.http.HttpMethod;
 import org.junit.jupiter.api.Test;
@@ -29,7 +27,7 @@ class ApplicationTest {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2");
 
-      Handler handler = new Application(PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder())));
+      Handler handler = new Application(PublicDirectory.create(directory.toString()));
       Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", new HashMap<>(), null, 0));
 
       assertTrue(new String(response.getBody()).split("", 2).length == 2);
