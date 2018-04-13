@@ -3,9 +3,7 @@ package me.karakelley.http.handlers;
 import me.karakelley.http.HttpMethod;
 import me.karakelley.http.Request;
 import me.karakelley.http.Response;
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +19,7 @@ class UpdateResourceHandlerTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new UpdateResourceHandler(publicDirectory);
       HashMap<String, String> headers = new HashMap<>();
       headers.put("Content-Length", "11");
@@ -33,7 +31,7 @@ class UpdateResourceHandlerTest {
   @Test
   void test201ResponseForNewResource() {
     TempFilesHelper.withTempDirectory(directory -> {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new UpdateResourceHandler(publicDirectory);
       HashMap<String, String> headers = new HashMap<>();
       headers.put("Content-Length", "11");

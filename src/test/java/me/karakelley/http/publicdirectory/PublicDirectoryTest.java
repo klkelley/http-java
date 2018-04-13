@@ -2,9 +2,7 @@ package me.karakelley.http.publicdirectory;
 
 import me.karakelley.http.exceptions.PublicDirectoryMissingException;
 import me.karakelley.http.exceptions.PublicDirectoryNotADirectoryException;
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +19,7 @@ class PublicDirectoryTest {
   @Test
   void testMissingDirectory() {
     assertThrows(PublicDirectoryMissingException.class, () -> {
-      PublicDirectory.create(UUID.randomUUID().toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory.create(UUID.randomUUID().toString());
     });
   }
 
@@ -31,7 +29,7 @@ class PublicDirectoryTest {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
 
       assertThrows(PublicDirectoryNotADirectoryException.class, () -> {
-        PublicDirectory.create(file.toString(), new FileFinderCache(new RealFileFinder()));
+        PublicDirectory.create(file.toString());
       });
     });
   }
@@ -39,7 +37,7 @@ class PublicDirectoryTest {
   @Test
   void testEmptyDirectory() {
     TempFilesHelper.withTempDirectory(directory1 -> {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory1.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory1.toString());
       List<File> fileNames = publicDirectory.getDirectoriesAndFiles("/");
 
       assertTrue(fileNames.size() == 0);
@@ -51,7 +49,7 @@ class PublicDirectoryTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2");
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       List<File> fileNames = publicDirectory.getDirectoriesAndFiles("/");
 
       assertTrue(fileNames.size() == 2);
@@ -62,7 +60,7 @@ class PublicDirectoryTest {
   void testResourceExists() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertTrue(publicDirectory.resourceExists("/" + String.valueOf(fileOne.getFileName())));
     });
@@ -70,7 +68,7 @@ class PublicDirectoryTest {
 
   @Test
   void testResourceDoesntExist() {
-    PublicDirectory publicDirectory = PublicDirectory.create("/", new FileFinderCache(new RealFileFinder()));
+    PublicDirectory publicDirectory = PublicDirectory.create("/");
 
     assertFalse(publicDirectory.resourceExists("/someBadPath"));
   }
@@ -78,7 +76,7 @@ class PublicDirectoryTest {
   @Test
   void testGetMimeType() {
     TempFilesHelper.withTempDirectory(directory -> {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals("text/plain", publicDirectory.getMimeType("/text1.txt"));
     });
@@ -88,7 +86,7 @@ class PublicDirectoryTest {
   void testIsFile() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals(true, publicDirectory.isFile("/test1.txt"));
     });
@@ -97,7 +95,7 @@ class PublicDirectoryTest {
   @Test
   void testIsNotAFile() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals(false, publicDirectory.isFile(directory.toString()));
     });
@@ -107,7 +105,7 @@ class PublicDirectoryTest {
   void testGetFileContentsForEmptyFile() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals("", new String(publicDirectory.getFileContents("/test1.txt")));
     });
@@ -119,7 +117,7 @@ class PublicDirectoryTest {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello World", file);
 
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals("Hello World", new String(publicDirectory.getFileContents("/test1.txt")));
     });
@@ -128,7 +126,7 @@ class PublicDirectoryTest {
   @Test
   void testCreateNewFile() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       try {
         publicDirectory.createFile("/testing123.txt", "hello world".getBytes());
       } catch (IOException e) {
@@ -141,7 +139,7 @@ class PublicDirectoryTest {
   @Test
   void testCreateNewFileWithNewdirectory() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       try {
         publicDirectory.createFile("/newpath/testing123.txt", "hello world".getBytes());
       } catch (IOException e) {
@@ -154,7 +152,7 @@ class PublicDirectoryTest {
   @Test
   void testBytesAreEqual() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
 
       byte[] bytes = new byte[0];
@@ -180,7 +178,7 @@ class PublicDirectoryTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       publicDirectory.updateFileContents("/test1.txt", "Hello World".getBytes());
       assertEquals("Hello World", new String(publicDirectory.getFileContents("/test1.txt")));
@@ -190,7 +188,7 @@ class PublicDirectoryTest {
   @Test
   void testValidPath() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       assertEquals(true, publicDirectory.resourceExists("testing/../testing"));
     });
   }
@@ -198,7 +196,7 @@ class PublicDirectoryTest {
   @Test
   void testInvalidPath() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       assertFalse(publicDirectory.resourceExists("/testing/../../"));
     });
   }

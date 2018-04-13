@@ -2,9 +2,7 @@ package me.karakelley.http.handlers;
 
 import me.karakelley.http.Request;
 import me.karakelley.http.Response;
-import me.karakelley.http.filesystem.FileFinderCache;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.filesystem.RealFileFinder;
 import me.karakelley.http.helpers.TempFilesHelper;
 import me.karakelley.http.HttpMethod;
 import org.junit.jupiter.api.Test;
@@ -20,7 +18,7 @@ class NewResourceHandlerTest {
   void test201ResponseForPostContainsLocationHeader() {
     TempFilesHelper.withTempDirectory(directory -> {
 
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
       HashMap<String, String> headers = new HashMap<>();
       headers.put("Content-Length", "9");
@@ -31,7 +29,7 @@ class NewResourceHandlerTest {
 
   @Test
   void testPostToRootDirectoryWithoutFile() {
-    PublicDirectory publicDirectory = PublicDirectory.create("/", new FileFinderCache(new RealFileFinder()));
+    PublicDirectory publicDirectory = PublicDirectory.create("/");
     Handler handler = new NewResourceHandler(publicDirectory);
     Response response = handler.respond(new Request(HttpMethod.POST, "/", "HTTP/1.1", null, null, 0));
     assertEquals(response.getStatus(), "409 Conflict");
@@ -40,7 +38,7 @@ class NewResourceHandlerTest {
   @Test
   void test201ResponseForNewDirectory() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
       Response response = handler.respond(new Request(HttpMethod.POST, "/newpath/", "HTTP/1.1", null, null,  0));
 
@@ -52,7 +50,7 @@ class NewResourceHandlerTest {
   void test409ResponseForFileThatAlreadyExists() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/testing1");
-      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString(), new FileFinderCache(new RealFileFinder()));
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
       HashMap<String, String> headers = new HashMap<>();
       headers.put("Content-Length", "9");
