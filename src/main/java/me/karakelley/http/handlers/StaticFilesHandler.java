@@ -28,7 +28,9 @@ public class StaticFilesHandler implements Handler {
     if (publicDirectory.resourceExists(requestedResource)) {
       response = new Ok();
       return serveResponse(response, requestedResource);
-    } else return new NotFound();
+    } else {
+      return new NotFound();
+    }
   }
 
   private Response serveResponse(Response response, String requestedResource) {
