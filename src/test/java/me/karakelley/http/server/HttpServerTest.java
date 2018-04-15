@@ -14,12 +14,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpServerTest {
-  private static InMemoryAppender inMemoryAppender;
 
 
   @Test
@@ -115,7 +113,7 @@ class HttpServerTest {
 
   @Test
   void testPortIsUnavailable() {
-    withAppender(logger -> {
+    List<String> events = withCapturedLogging(() -> {
       ClientHelper client = new ClientHelper();
       ServerConfiguration config = new ServerConfiguration();
       config.setPort("0");
@@ -138,14 +136,13 @@ class HttpServerTest {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-
-      assertTrue(inMemoryAppender.getEvents().contains("Address already in use (Bind failed)"));
     });
+    assertTrue(events.contains("Address already in use (Bind failed)"));
   }
 
   @Test
   void testPortTooLarge() {
-    withAppender(logger -> {
+    List<String> events = withCapturedLogging(() -> {
       ServerConfiguration config = new ServerConfiguration();
       config.setPort("45456456");
       config.setHandler(new Application());
@@ -165,8 +162,8 @@ class HttpServerTest {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      assertTrue(inMemoryAppender.getEvents().contains("Port value out of range: 45456456"));
     });
+    assertTrue(events.contains("Port value out of range: 45456456"));
   }
 
   @Test
@@ -439,7 +436,7 @@ class HttpServerTest {
   }
 
   @Test
-  void test200ResponseForDeleteRequest() {
+  void test204ResponseForDeleteRequest() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
       ServerConfiguration config = new ServerConfiguration();
@@ -488,17 +485,13 @@ class HttpServerTest {
     });
   }
 
-  private void withAppender(Consumer<Logger> loggerConsumer) {
-    try {
-      Logger rootLogger = (Logger) LoggerFactory.getLogger("ROOT");
-      loggerConsumer = rootLogger1 -> {
-        inMemoryAppender = (InMemoryAppender) rootLogger1.getAppender("InMemoryAppender");
-        inMemoryAppender.setPrefix("test");
-        inMemoryAppender.start();
-      };
-      loggerConsumer.accept(rootLogger);
-    } finally {
-      inMemoryAppender.stop();
-    }
+  private List<String> withCapturedLogging(Runnable runnable) {
+    Logger logger = (Logger) LoggerFactory.getLogger("ROOT");
+    InMemoryAppender inMemoryAppender = (InMemoryAppender) logger.getAppender("InMemoryAppender");
+    inMemoryAppender.setPrefix("test");
+    inMemoryAppender.start();
+    runnable.run();
+    inMemoryAppender.stop();
+    return inMemoryAppender.getEvents();
   }
 }

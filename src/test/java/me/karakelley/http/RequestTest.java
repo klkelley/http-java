@@ -1,12 +1,8 @@
 package me.karakelley.http;
 
-import me.karakelley.http.utility.BufferedLineReader;
-import me.karakelley.http.utility.LineReader;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -71,18 +67,6 @@ class RequestTest {
     headers.put("Host", "test.com");
     request = new Request(HttpMethod.GET, "/",  "HTTP/1.1", headers, "".getBytes(), 4000);
     assertEquals(request.getHostAndPort(), "test.com:4000" );
-  }
-
-  @Test
-  void something() throws Exception {
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("GET / HTTP/1.1\r\n".getBytes());
-    LineReader reader = new BufferedLineReader(new InputStreamReader(inputStream));
-    reader.close();
-    try {
-      new Request(HttpMethod.GET, "/", "HTTP/1.1", null, "".getBytes(), 0);
-    } catch (Exception e) {
-      assertEquals("java.io.IOException: Stream closed", e.getMessage());
-    }
   }
 
   @Test
