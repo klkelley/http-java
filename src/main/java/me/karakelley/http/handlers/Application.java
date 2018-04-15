@@ -19,10 +19,11 @@ public class Application implements Handler {
 
   public Application(PublicDirectory publicDirectory) {
     this.publicDirectory = publicDirectory;
-    router.route(HttpMethod.POST, new NewResourceHandler(publicDirectory));
-    router.route(HttpMethod.GET, new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory)));
-    router.route(HttpMethod.PUT, new UpdateResourceHandler(publicDirectory));
-    router.route(HttpMethod.DELETE, new DeleteResourceHandler(publicDirectory));
+    Handler staticFileHandler = new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory));
+    router.route(HttpMethod.GET, staticFileHandler);
+    router.route(HttpMethod.POST, staticFileHandler);
+    router.route(HttpMethod.PUT, staticFileHandler);
+    router.route(HttpMethod.DELETE, staticFileHandler);
     setupPredefinedRoutes();
   }
 

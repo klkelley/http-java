@@ -1,7 +1,6 @@
-package me.karakelley.http.handlers;
+package me.karakelley.http.handlers.staticfilestrategies;
 
 import me.karakelley.http.filesystem.PublicDirectory;
-
 import me.karakelley.http.http.Request;
 import me.karakelley.http.http.Response;
 import me.karakelley.http.http.responses.Conflict;
@@ -11,10 +10,10 @@ import me.karakelley.http.server.Handler;
 
 import java.io.IOException;
 
-public class UpdateResourceHandler implements Handler {
+public class UpdateResourceStrategy implements Handler {
   private PublicDirectory publicDirectory;
 
-  public UpdateResourceHandler(PublicDirectory publicDirectory) {
+  public UpdateResourceStrategy(PublicDirectory publicDirectory) {
     this.publicDirectory = publicDirectory;
   }
 
