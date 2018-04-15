@@ -54,7 +54,7 @@ class HttpRequestReaderTest {
 
   @Test
   void testRequestHasAPathOfRedirectme() {
-    requestString = requestBuilder.setMethod("POST").setPath("/redirectme").build();
+    requestString = requestBuilder.setMethod("POST").setPath("/redirectme").setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy").build();
     Request request = parse(requestString);
 
     assertEquals("/redirectme", request.getPath());
@@ -80,21 +80,12 @@ class HttpRequestReaderTest {
   }
 
   @Test
-  void testRequestHasHeaders() {
-    requestString = requestBuilder.setMethod("POST").setPath("/hey.txt").setHeader("Content-Type", "text/plain").build();
-    Request request = parse(requestString);
-    Map<String, String> headers = new HashMap<>();
-    headers.put("Content-Type", "text/plain");
-
-    assertEquals(headers, request.getHeaders());
-  }
-
-  @Test
   void testRequestHasMultipleHeaders() {
     Request request = parse(postRequestWithBody());
     Map<String, String> headers = new HashMap<>();
     headers.put("Content-Type", "text/plain");
     headers.put("Content-Length", "3");
+    headers.put("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy");
 
     assertEquals(headers, request.getHeaders());
   }
@@ -113,7 +104,9 @@ class HttpRequestReaderTest {
   }
 
   private String basicPostRequest() {
-    return requestBuilder.setMethod("POST").setPath("/").build();
+    return requestBuilder.setMethod("POST").setPath("/")
+            .setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy")
+            .build();
   }
 
   private String postRequestWithBody() {
@@ -121,6 +114,7 @@ class HttpRequestReaderTest {
             .setPath("/hey.txt")
             .setHeader("Content-Type", "text/plain")
             .setHeader("Content-Length", "3")
+            .setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy")
             .setBody("hey")
             .build();
   }
