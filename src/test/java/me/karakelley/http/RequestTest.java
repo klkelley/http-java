@@ -87,6 +87,17 @@ class RequestTest {
     assertEquals(new String(request.getBody()), "txt=99999");
   }
 
+  @Test
+  void testGetPathWithoutQueryParams() {
+    request = new Request.Builder()
+            .setMethod(HttpMethod.GET)
+            .setPath("/parse?hey=hola")
+            .setPort(0)
+            .build();
+
+    assertEquals("/parse", request.getPath());
+  }
+
   private Map<String, String> setHeaders() {
     Map<String, String> headers = new HashMap<>();
     headers.put("Host", "localhost:5000");
@@ -107,4 +118,5 @@ class RequestTest {
             .setPort(port)
             .build();
   }
+
 }

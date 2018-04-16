@@ -1,13 +1,12 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.contentpresenter.HtmlPresenter;
+import me.karakelley.http.presenters.HtmlFilePresenter;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.helpers.TempFilesHelper;
 import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.http.Response;
 import me.karakelley.http.http.Request;
 import me.karakelley.http.server.Handler;
-import me.karakelley.http.server.HttpServer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -22,7 +21,7 @@ class StaticFilesHandlerTest {
       TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createTempFile(directory, "/test2.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory));
       Response response = handler.respond(new Request.Builder()
               .setMethod(HttpMethod.GET)
               .setPath("/")
@@ -39,7 +38,7 @@ class StaticFilesHandlerTest {
     TempFilesHelper.withTempDirectory(directory -> {
       TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory));
       Response response = handler.respond(new Request.Builder()
               .setMethod(HttpMethod.GET)
               .setPath("/")
@@ -58,8 +57,7 @@ class StaticFilesHandlerTest {
       TempFilesHelper.createContents("Hello World", file);
 
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      ContentPresenter contentPresenter = new HtmlPresenter();
-      Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory));
       Response response = handler.respond(new Request.Builder()
               .setMethod(HttpMethod.GET)
               .setPath("/test1.txt")
@@ -77,8 +75,7 @@ class StaticFilesHandlerTest {
       Path file = TempFilesHelper.createTempFile(directory, "/index.html");
       TempFilesHelper.createContents("<p>Index File Present</p>", file);
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      ContentPresenter contentPresenter = new HtmlPresenter();
-      Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory));
       Response response = handler.respond(new Request.Builder()
               .setMethod(HttpMethod.GET)
               .setPath("/")
