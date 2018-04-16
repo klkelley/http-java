@@ -189,7 +189,7 @@ class HttpServerTest {
   @Test
   void testDisplaysFilesAtRoot() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
@@ -204,7 +204,7 @@ class HttpServerTest {
   @Test
   void testSend404WhenPathDoesNotExist() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
@@ -219,7 +219,7 @@ class HttpServerTest {
   @Test
   void testReturnsFileContentsRequested() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello World", fileOne);
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
@@ -236,7 +236,7 @@ class HttpServerTest {
   @Test
   void testCreatesFileWithPostRequest() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
@@ -269,7 +269,7 @@ class HttpServerTest {
   @Test
   void sends204ForPutRequestForExistingResource() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello", file);
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       ClientHelper client2 = new ClientHelper();
@@ -289,7 +289,7 @@ class HttpServerTest {
   @Test
   void test404ReturnedForAttemptedDirectoryTraversal() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello World", fileOne);
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
@@ -305,7 +305,7 @@ class HttpServerTest {
   @Test
   void test204ResponseForDeleteRequest() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
@@ -319,8 +319,8 @@ class HttpServerTest {
 
   @Test
   void test404ForGetRequestAfterResourceDeleted() {
-    TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+    TempFilesHelper.withTempDirectory(directory ->  {
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello", file);
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       ClientHelper client2 = new ClientHelper();
@@ -352,7 +352,7 @@ class HttpServerTest {
   @Test
   void whenDirectoryArgumentIsPassedApplicationIsConfiguredWithPublicDirectory() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello There From The Test Suite!", file);
       HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
       startOnNewThread(httpServer);
@@ -362,6 +362,21 @@ class HttpServerTest {
       List<String> response = client.sendMessage(requestString);
 
       assertTrue(response.contains("Hello There From The Test Suite!"));
+    });
+  }
+
+  @Test
+  void testServesHtmlFileForDirectoryWhenPresent() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path file = TempFilesHelper.createTempFile(directory, "/index.html");
+      TempFilesHelper.createContents("<p>Hello!</p>", file);
+      HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
+      startOnNewThread(httpServer);
+      connectClient(httpServer, client);
+
+      List<String> response = client.sendMessage(basicGetRequest());
+
+      assertTrue(response.contains("<p>Hello!</p>"));
     });
   }
 

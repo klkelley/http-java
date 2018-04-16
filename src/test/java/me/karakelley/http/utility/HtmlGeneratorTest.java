@@ -13,7 +13,7 @@ class HtmlGeneratorTest {
   void testDisplayDirectory() {
     HtmlPresenter htmlGenerator = new HtmlPresenter();
     TempFilesHelper.withTempDirectory(directory -> {
-      Path pathOne = TempFilesHelper.createTempFile(directory, "/test1");
+      Path pathOne = TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals(htmlGenerator.displayResources(pathOne.toFile(), publicDirectory), "<p><a href=\"/test1.txt\">test1.txt</a></p>");

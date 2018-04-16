@@ -66,7 +66,7 @@ class NewResourceHandlerTest {
   @Test
   void test409ResponseForFileThatAlreadyExists() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/testing1");
+      TempFilesHelper.createTempFile(directory, "/testing1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
       Response response = handler.respond(new Request.Builder()

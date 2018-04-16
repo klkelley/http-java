@@ -18,7 +18,7 @@ class UpdateResourceHandlerTest {
   @Test
   void test204ResponseForUpdatingExistingResource() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello", file);
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new UpdateResourceHandler(publicDirectory);
