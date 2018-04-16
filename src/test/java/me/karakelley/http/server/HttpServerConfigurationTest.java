@@ -1,4 +1,4 @@
-package me.karakelley.http;
+package me.karakelley.http.server;
 
 import me.karakelley.http.server.Handler;
 import me.karakelley.http.server.ServerConfiguration;

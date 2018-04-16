@@ -1,4 +1,4 @@
-package me.karakelley.http;
+package me.karakelley.http.helpers;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;

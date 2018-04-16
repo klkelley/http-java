@@ -22,9 +22,8 @@ class UpdateResourceHandlerTest {
       TempFilesHelper.createContents("Hello", file);
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new UpdateResourceHandler(publicDirectory);
-      HashMap<String, String> headers = new HashMap<>();
-      headers.put("Content-Length", "11");
-      Response response = handler.respond(new Request(HttpMethod.PUT, "/test1.txt", "HTTP/1.1", headers, "Hello World".getBytes(), 0));
+      Response response = handler.respond(basicPutRequest());
+
       assertEquals("204 No Content", response.getStatus());
     });
   }
@@ -34,10 +33,26 @@ class UpdateResourceHandlerTest {
     TempFilesHelper.withTempDirectory(directory -> {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new UpdateResourceHandler(publicDirectory);
-      HashMap<String, String> headers = new HashMap<>();
-      headers.put("Content-Length", "11");
-      Response response = handler.respond(new Request(HttpMethod.PUT, "/test1.txt", "HTTP/1.1", headers, "Hello World".getBytes(), 0));
+      Response response = handler.respond(basicPutRequest());
+
       assertEquals("201 Created", response.getStatus());
     });
+  }
+
+  private HashMap<String, String> setHeaders() {
+    HashMap<String, String> headers = new HashMap<>();
+    headers.put("Content-Length", "11");
+    return headers;
+  }
+
+  private Request basicPutRequest() {
+    return new Request.Builder()
+            .setMethod(HttpMethod.PUT)
+            .setPath("/test1.txt")
+            .setProtocol("HTTP/1.1")
+            .setHeaders(setHeaders())
+            .setBody("Hello World".getBytes())
+            .setPort(0)
+            .build();
   }
 }

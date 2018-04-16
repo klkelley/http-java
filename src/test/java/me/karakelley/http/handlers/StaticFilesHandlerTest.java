@@ -18,13 +18,16 @@ class StaticFilesHandlerTest {
   @Test
   void testGetDisplayFiles() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
-      Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2");
+      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test2");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-
-      ContentPresenter contentPresenter = new HtmlPresenter();
-      Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", null, null,0));
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.GET)
+              .setPath("/")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
 
       assertTrue(new String(response.getBody()).split("", 2).length == 2);
     });
@@ -33,11 +36,15 @@ class StaticFilesHandlerTest {
   @Test
   void testCreatesLinksForDirectories() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      ContentPresenter contentPresenter = new HtmlPresenter();
-      Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", null, null, 0));
+      Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.GET)
+              .setPath("/")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
 
       assertTrue(new String(response.getBody()).contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
     });
@@ -52,7 +59,13 @@ class StaticFilesHandlerTest {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       ContentPresenter contentPresenter = new HtmlPresenter();
       Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
-      Response response = handler.respond(new Request(HttpMethod.GET, "/test1.txt",  "HTTP/1.1", null, null, 0));
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.GET)
+              .setPath("/test1.txt")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
+
       assertEquals("Hello World", new String(response.getBody()));
     });
   }

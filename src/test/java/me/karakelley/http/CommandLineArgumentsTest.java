@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import me.karakelley.http.mocks.ExitMock;
 import me.karakelley.http.exit.Exit;
 import me.karakelley.http.helpers.InMemoryAppender;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -26,16 +25,12 @@ class CommandLineArgumentsTest {
     commandLineArguments = new CommandLineArguments();
   }
 
-  @AfterEach
-  void tearDown() {
-    commandLineArguments.parse(new String[]{""}, exitMock);
-  }
-
   @Test
   void testInvalidPortThrowsException() {
     List<String> events = withCapturedLogging(() ->  {
       commandLineArguments.parse(new String[]{"-p", "badinput"}, exitMock);
     });
+
     assertTrue(events.contains("java.lang.NumberFormatException: For input string: \"badinput\""));
   }
 
@@ -44,6 +39,7 @@ class CommandLineArgumentsTest {
     List<String> events = withCapturedLogging(() ->  {
       commandLineArguments.parse(new String[]{"-p", "badinput", "otherstuff"}, exitMock);
     });
+
     assertTrue(events.contains("java.lang.RuntimeException: Invalid number of arguments"));
   }
 
@@ -52,6 +48,7 @@ class CommandLineArgumentsTest {
     List<String> events = withCapturedLogging(() ->  {
       commandLineArguments.parse(new String[]{"5000"}, exitMock);
     });
+
     assertTrue(events.contains("java.lang.RuntimeException: Invalid number of arguments"));
   }
 
@@ -71,22 +68,24 @@ class CommandLineArgumentsTest {
 
   @Test
   void testGetArgsHash() {
-    CommandLineArguments commandLineArguments = new CommandLineArguments();
     Map<String, String> argsHash = commandLineArguments.parse(new String[]{"--port", "5000"}, exitMock);
     Map<String, String> args = new HashMap<>();
     args.put("port", "5000");
+
     assertEquals(args, argsHash);
   }
 
   @Test
   void givenInvalidDirectoryProgramExits() {
     commandLineArguments.parse(new String[]{"-p", "5000", "-d", "./funstuff/"}, exitMock);
+
     assertTrue(ExitMock.exitCalled > 0);
   }
 
   @Test
   void givenInvalidPortProgramExits() {
     commandLineArguments.parse(new String[]{"-p", "badport", "-d", "./badpath/"}, exitMock);
+
     assertTrue(ExitMock.exitCalled > 0);
   }
 
