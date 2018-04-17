@@ -12,7 +12,7 @@ public class Application implements Handler {
 
   public Application() {
     router.route(HttpMethod.GET, "/", new HelloWorldHandler());
-    setupCommonRoutes();
+    setupPredefinedRoutes();
   }
 
   public Application(PublicDirectory publicDirectory) {
@@ -21,7 +21,7 @@ public class Application implements Handler {
     router.route(HttpMethod.GET, new StaticFilesHandler(publicDirectory, new HtmlPresenter()));
     router.route(HttpMethod.PUT, new UpdateResourceHandler(publicDirectory));
     router.route(HttpMethod.DELETE, new DeleteResourceHandler(publicDirectory));
-    setupCommonRoutes();
+    setupPredefinedRoutes();
   }
 
   @Override
@@ -29,7 +29,8 @@ public class Application implements Handler {
     return router.respond(request);
   }
 
-  private void setupCommonRoutes() {
+  private void setupPredefinedRoutes() {
     router.route(HttpMethod.GET, "/redirectme", new RedirectHandler());
   }
 }
+
