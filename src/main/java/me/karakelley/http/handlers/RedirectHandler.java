@@ -1,8 +1,9 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
-import me.karakelley.http.responses.MovedPermanently;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.Response;
+import me.karakelley.http.http.responses.MovedPermanently;
+import me.karakelley.http.server.Handler;
 
 public class RedirectHandler implements Handler {
 

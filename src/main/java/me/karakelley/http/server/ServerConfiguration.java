@@ -1,7 +1,5 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.handlers.Handler;
-
 public class ServerConfiguration {
   private String port;
   private Handler handler;

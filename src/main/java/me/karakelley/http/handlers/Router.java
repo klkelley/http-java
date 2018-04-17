@@ -1,10 +1,11 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.HttpMethod;
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
-import me.karakelley.http.responses.MethodNotAllowed;
-import me.karakelley.http.responses.NotFound;
+import me.karakelley.http.http.HttpMethod;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.Response;
+import me.karakelley.http.http.responses.MethodNotAllowed;
+import me.karakelley.http.http.responses.NotFound;
+import me.karakelley.http.server.Handler;
 
 import java.util.*;
 

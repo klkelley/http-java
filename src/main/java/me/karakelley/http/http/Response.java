@@ -1,4 +1,4 @@
-package me.karakelley.http;
+package me.karakelley.http.http;
 
 import java.util.HashMap;
 import java.util.Map;

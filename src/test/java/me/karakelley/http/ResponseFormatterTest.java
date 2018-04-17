@@ -1,5 +1,7 @@
 package me.karakelley.http;
 
+import me.karakelley.http.http.Response;
+import me.karakelley.http.server.ResponseFormatter;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

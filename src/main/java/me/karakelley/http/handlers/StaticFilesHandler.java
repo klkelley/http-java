@@ -1,11 +1,11 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.contentpresenter.ContentPresenter;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
-import me.karakelley.http.responses.NotFound;
-import me.karakelley.http.responses.Ok;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.Response;
+import me.karakelley.http.http.responses.NotFound;
+import me.karakelley.http.http.responses.Ok;
+import me.karakelley.http.server.Handler;
 
 import java.io.File;
 import java.util.ArrayList;

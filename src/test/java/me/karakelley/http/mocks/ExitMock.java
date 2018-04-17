@@ -1,6 +1,6 @@
 package me.karakelley.http.mocks;
 
-import me.karakelley.http.utility.Exit;
+import me.karakelley.http.exit.Exit;
 
 public class ExitMock implements Exit {
   public static int exitCalled = 0;

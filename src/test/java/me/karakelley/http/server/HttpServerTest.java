@@ -1,12 +1,10 @@
 package me.karakelley.http.server;
 
 import ch.qos.logback.classic.Logger;
-import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.handlers.Application;
-import me.karakelley.http.ApplicationFactory;
+import me.karakelley.http.handlers.ApplicationFactory;
 import me.karakelley.http.helpers.ClientHelper;
 import me.karakelley.http.helpers.TempFilesHelper;
-import me.karakelley.http.utility.InMemoryAppender;
+import me.karakelley.http.helpers.InMemoryAppender;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static sun.management.snmp.jvminstr.JvmThreadInstanceEntryImpl.ThreadStateMap.Byte0.runnable;
 
 class HttpServerTest {
 

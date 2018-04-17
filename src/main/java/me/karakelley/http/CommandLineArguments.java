@@ -1,5 +1,6 @@
-package me.karakelley.http.utility;
+package me.karakelley.http;
 
+import me.karakelley.http.exit.Exit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

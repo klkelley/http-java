@@ -2,9 +2,8 @@ package me.karakelley.http;
 
 import ch.qos.logback.classic.Logger;
 import me.karakelley.http.mocks.ExitMock;
-import me.karakelley.http.utility.CommandLineArguments;
-import me.karakelley.http.utility.Exit;
-import me.karakelley.http.utility.InMemoryAppender;
+import me.karakelley.http.exit.Exit;
+import me.karakelley.http.helpers.InMemoryAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package me.karakelley.http.utility;
+package me.karakelley.http.exit;
 
 public interface Exit {
   void exit(int status);

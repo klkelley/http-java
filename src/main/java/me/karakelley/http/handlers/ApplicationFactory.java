@@ -1,8 +1,7 @@
-package me.karakelley.http;
+package me.karakelley.http.handlers;
 
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.handlers.Application;
-import me.karakelley.http.handlers.Handler;
+import me.karakelley.http.server.Handler;
 
 import java.util.Map;
 

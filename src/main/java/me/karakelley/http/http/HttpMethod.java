@@ -1,6 +1,4 @@
-package me.karakelley.http;
-
-import me.karakelley.http.exceptions.InvalidRequestException;
+package me.karakelley.http.http;
 
 public enum HttpMethod {
   GET,

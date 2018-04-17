@@ -1,4 +1,6 @@
-package me.karakelley.http;
+package me.karakelley.http.server;
+
+import me.karakelley.http.http.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

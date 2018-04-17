@@ -1,7 +1,6 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.Response;
-import me.karakelley.http.ResponseFormatter;
+import me.karakelley.http.http.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

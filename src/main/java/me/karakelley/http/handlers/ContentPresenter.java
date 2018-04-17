@@ -1,4 +1,4 @@
-package me.karakelley.http.contentpresenter;
+package me.karakelley.http.handlers;
 
 import me.karakelley.http.filesystem.PublicDirectory;
 

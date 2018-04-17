@@ -1,10 +1,11 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.Response;
 import me.karakelley.http.filesystem.PublicDirectory;
-import me.karakelley.http.responses.Conflict;
-import me.karakelley.http.responses.Created;
+import me.karakelley.http.http.responses.Conflict;
+import me.karakelley.http.http.responses.Created;
+import me.karakelley.http.server.Handler;
 
 public class NewResourceHandler implements Handler {
 

@@ -1,6 +1,5 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.handlers.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
