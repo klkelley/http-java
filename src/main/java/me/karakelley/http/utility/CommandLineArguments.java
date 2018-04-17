@@ -9,11 +9,10 @@ import java.util.Map;
 
 public class CommandLineArguments {
   private final static Logger logger = LoggerFactory.getLogger(CommandLineArguments.class);
-  private static final String DEFAULT_PATH = "nodirectory";
   private static final int DEFAULT_PORT = 0;
-  static Map<String, String> argsHash = new HashMap<>();
+  private Map<String, String> argsHash = new HashMap<>();
 
-  public static Map<String, String> parse(String[] args, Exit systemExit) {
+  public Map<String, String> parse(String[] args, Exit systemExit) {
     try {
       if (!noArguments(args)) {
         convertArgsToMap(args);
@@ -28,17 +27,17 @@ public class CommandLineArguments {
     return argsHash;
   }
 
-  private static void setDirectory(String[] args) {
+  private void setDirectory(String[] args) {
     if (!noArguments(args) && containsArgument("directory")) {
       try {
         validPath();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-    } else argsHash.put("directory", DEFAULT_PATH);
+    }
   }
 
-  private static void setPort(String[] args) {
+  private void setPort(String[] args) {
     if (noArguments(args) || !containsArgument("port")) {
       argsHash.put("port", String.valueOf(DEFAULT_PORT));
     } else {
@@ -46,15 +45,15 @@ public class CommandLineArguments {
     }
   }
 
-  private static boolean containsArgument(String argument) {
+  private boolean containsArgument(String argument) {
     return argsHash.containsKey(argument);
   }
 
-  private static boolean noArguments(String[] args) {
+  private boolean noArguments(String[] args) {
     return args.length == 0;
   }
 
-  private static int validatePort() {
+  private int validatePort() {
     try {
       return Integer.parseInt(argsHash.get("port"));
     } catch (Exception e) {
@@ -62,7 +61,7 @@ public class CommandLineArguments {
     }
   }
 
-  private static boolean validPath() {
+  private boolean validPath() {
     File file = new File(argsHash.get("directory"));
     if (file.isFile() || file.isDirectory()) {
       return true;
@@ -71,7 +70,7 @@ public class CommandLineArguments {
     }
   }
 
-  private static void checkAndFormatArgs() {
+  private void checkAndFormatArgs() {
     if (argExists("-p", "--port")) {
       formatArgsHash("-p", "--port", "port");
     }
@@ -80,7 +79,7 @@ public class CommandLineArguments {
     }
   }
 
-  private static void convertArgsToMap(String[] args) {
+  private void convertArgsToMap(String[] args) {
     try {
       invalidNumberOfArguments(args);
 
@@ -92,11 +91,11 @@ public class CommandLineArguments {
     }
   }
 
-  private static boolean argExists(String shortFlag, String fullFlag) {
+  private boolean argExists(String shortFlag, String fullFlag) {
     return argsHash.containsKey(shortFlag) || argsHash.containsKey(fullFlag);
   }
 
-  private static void formatArgsHash(String shortFlag, String fullFlag, String newKey) {
+  private void formatArgsHash(String shortFlag, String fullFlag, String newKey) {
     if (argsHash.containsKey(shortFlag)) {
       argsHash.put(newKey, argsHash.remove(shortFlag));
     } else if (argsHash.containsKey(fullFlag)) {
@@ -104,7 +103,7 @@ public class CommandLineArguments {
     }
   }
 
-  private static void invalidNumberOfArguments(String[] args) {
+  private void invalidNumberOfArguments(String[] args) {
     if (args.length % 2 != 0 || args.length > 4) {
       throw new RuntimeException("Invalid number of arguments");
     }
