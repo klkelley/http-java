@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UpdateResourceHandlerTest {
 
   @Test
-  void test200ResponseForUpdatingExistingResource() {
+  void test204ResponseForUpdatingExistingResource() {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
@@ -24,7 +24,7 @@ class UpdateResourceHandlerTest {
       HashMap<String, String> headers = new HashMap<>();
       headers.put("Content-Length", "11");
       Response response = handler.respond(new Request(HttpMethod.PUT, "/test1.txt", "HTTP/1.1", headers, "Hello World".getBytes(), 0));
-      assertEquals("200 OK", response.getStatus());
+      assertEquals("204 No Content", response.getStatus());
     });
   }
 

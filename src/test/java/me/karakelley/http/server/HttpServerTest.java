@@ -317,7 +317,7 @@ class HttpServerTest {
   }
 
   @Test
-  void sends200ForPutRequestForExistingResource() {
+  void sends204ForPutRequestForExistingResource() {
     TempFilesHelper.withTempDirectory(directory ->  {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
@@ -335,7 +335,7 @@ class HttpServerTest {
 
       List<String> response = client.sendMessage("PUT /test1.txt HTTP/1.1\r\nContent-Length: 11\r\n\r\nHello World");
       List<String> getResponse = client2.sendMessage("GET /test1.txt HTTP/1.1\r\n\r\n");
-      assertTrue(response.contains("HTTP/1.1 200 OK"));
+      assertTrue(response.contains("HTTP/1.1 204 No Content"));
       assertTrue(getResponse.contains("Hello World"));
     });
   }

@@ -6,7 +6,7 @@ import me.karakelley.http.Response;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.responses.Conflict;
 import me.karakelley.http.responses.Created;
-import me.karakelley.http.responses.Ok;
+import me.karakelley.http.responses.NoContent;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ public class UpdateResourceHandler implements Handler {
     try {
       if (publicDirectory.resourceExists(request.getPath())) {
         publicDirectory.updateFileContents(request.getPath(), request.getBody());
-        response = new Ok();
+        response = new NoContent();
       } else {
         response = createNewResource(response, request);
       }
