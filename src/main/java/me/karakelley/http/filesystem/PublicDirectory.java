@@ -89,6 +89,15 @@ public class PublicDirectory {
     return Paths.get(documentRoot + requestedResource);
   }
 
+  public void deleteResource(String path) {
+    Path newFile = getPath(path);
+    try {
+      Files.deleteIfExists(newFile);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public void updateFileContents(String path, byte[] contents) {
     File newFile = getPath(path).toFile();
     try (FileOutputStream outputStream = new FileOutputStream(newFile, false)) {
@@ -118,15 +127,6 @@ public class PublicDirectory {
 
   private Path normalizedDocumentRoot() {
     return documentRoot.toPath().normalize();
-  }
-
-  public void deleteResource(String path) {
-    Path newFile = getPath(path);
-    try {
-      Files.deleteIfExists(newFile);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
 
