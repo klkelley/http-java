@@ -8,8 +8,8 @@ import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.server.Handler;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,12 +18,17 @@ class NewResourceHandlerTest {
   @Test
   void test201ResponseForPostContainsLocationHeader() {
     TempFilesHelper.withTempDirectory(directory -> {
-
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
-      HashMap<String, String> headers = new HashMap<>();
-      headers.put("Content-Length", "9");
-      Response response = handler.respond(new Request(HttpMethod.POST, "/test1.txt", "HTTP/1.1", headers, "123456789".getBytes(), 0));
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.POST)
+              .setPath("/test1.txt")
+              .setProtocol("HTTP/1.1")
+              .setHeaders(setHeaders())
+              .setBody("123456789".getBytes())
+              .setPort(0)
+              .build());
+
       assertEquals("./src/testing/test1.txt", response.getHeaders().get("Location"));
     });
   }
@@ -32,7 +37,13 @@ class NewResourceHandlerTest {
   void testPostToRootDirectoryWithoutFile() {
     PublicDirectory publicDirectory = PublicDirectory.create("/");
     Handler handler = new NewResourceHandler(publicDirectory);
-    Response response = handler.respond(new Request(HttpMethod.POST, "/", "HTTP/1.1", null, null, 0));
+    Response response = handler.respond(new Request.Builder()
+            .setMethod(HttpMethod.POST)
+            .setPath("/")
+            .setProtocol("HTTP/1/1")
+            .setPort(0)
+            .build());
+
     assertEquals(response.getStatus(), "409 Conflict");
   }
 
@@ -41,7 +52,12 @@ class NewResourceHandlerTest {
     TempFilesHelper.withTempDirectory(directory ->  {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
-      Response response = handler.respond(new Request(HttpMethod.POST, "/newpath/", "HTTP/1.1", null, null,  0));
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.POST)
+              .setPath("/newpath/")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
 
       assertEquals(response.getStatus(), "201 Created");
     });
@@ -50,13 +66,24 @@ class NewResourceHandlerTest {
   @Test
   void test409ResponseForFileThatAlreadyExists() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/testing1");
+      TempFilesHelper.createTempFile(directory, "/testing1");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new NewResourceHandler(publicDirectory);
-      HashMap<String, String> headers = new HashMap<>();
-      headers.put("Content-Length", "9");
-      Response response = handler.respond(new Request(HttpMethod.POST, "/testing1.txt", "HTTP/1.1", headers, null, 0));
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.POST)
+              .setPath("/testing1.txt")
+              .setProtocol("HTTP/1.1")
+              .setHeaders(setHeaders())
+              .setPort(0)
+              .build());
+
       assertEquals("409 Conflict", response.getStatus());
     });
+  }
+
+  private Map<String, String> setHeaders() {
+    HashMap<String, String> headers = new HashMap<>();
+    headers.put("Content-Length", "9");
+    return headers;
   }
 }

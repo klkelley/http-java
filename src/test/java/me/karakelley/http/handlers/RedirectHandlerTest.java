@@ -16,7 +16,14 @@ class RedirectHandlerTest {
   @Test
   void testRedirect() {
     Handler handler = new RedirectHandler();
-    Response response = handler.respond(new Request(HttpMethod.GET, "/redirectme", "HTTP/1.1", new HashMap<>(),  null, 4000));
+    Response response = handler.respond(new Request.Builder()
+                                        .setMethod(HttpMethod.GET)
+                                        .setPath("/redirectme")
+                                        .setProtocol("HTTP/1.1")
+                                        .setHeaders(new HashMap<>())
+                                        .setPort(4000)
+                                        .build());
+
     assertEquals(new String(new ResponseFormatter(response).convertToBytes()), "HTTP/1.1 301 Moved Permanently\r\nLocation: http://localhost:4000/\r\n\r\n");
   }
 }

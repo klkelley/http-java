@@ -3,6 +3,8 @@ package me.karakelley.http.server;
 import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.http.Request;
 import me.karakelley.http.http.InvalidRequestException;
+import me.karakelley.http.helpers.RequestStringBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -12,46 +14,64 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpRequestReaderTest {
+  private RequestStringBuilder requestBuilder;
+  private String requestString;
+
+  @BeforeEach
+  void setUp() {
+    requestBuilder = new RequestStringBuilder();
+  }
 
   @Test
   void testRequestObjectIsNotNull() {
-    Request request = parse("GET / HTTP/1.1\r\n\r\n");
+    requestString = requestBuilder.setMethod("GET").setPath("/").build();
+    Request request = parse(requestString);
+
     assertTrue(request != null);
   }
 
   @Test
   void testRequestHasGetMethod() {
-    Request request = parse("GET / HTTP/1.1\r\n\r\n");
+    requestString = requestBuilder.setMethod("GET").setPath("/").build();
+    Request request = parse(requestString);
+
     assertEquals(HttpMethod.GET, request.getMethod());
   }
 
   @Test
   void testRequestHasPostMethod() {
-    Request request = parse("POST / HTTP/1.1\r\n\r\n");
+    Request request = parse(basicPostRequest());
+
     assertEquals(HttpMethod.POST, request.getMethod());
   }
 
   @Test
-  void testRequestHasAPathofRoot() {
-    Request request = parse("POST / HTTP/1.1\r\n\r\n");
+  void testRequestHasAPathOfRoot() {
+    Request request = parse(basicPostRequest());
+
     assertEquals("/", request.getPath());
   }
 
   @Test
   void testRequestHasAPathOfRedirectme() {
-    Request request = parse("POST /redirectme HTTP/1.1\r\n\r\n");
+    requestString = requestBuilder.setMethod("POST").setPath("/redirectme").build();
+    Request request = parse(requestString);
+
     assertEquals("/redirectme", request.getPath());
   }
 
   @Test
   void testRequestHasAProtocol() {
-    Request request = parse("POST / HTTP/1.1\r\n\r\n");
+    Request request = parse(basicPostRequest());
+
     assertEquals("HTTP/1.1", request.getProtocol());
   }
 
   @Test
   void testASyntacticallyInvalidRequestMethod() {
-    assertThrows(InvalidRequestException.class, () -> parse("GIT / HTTP/1.1\r\n\r\n"));
+    requestString = requestBuilder.setMethod("GIT").setPath("/").build();
+
+    assertThrows(InvalidRequestException.class, () -> parse(requestString));
   }
 
   @Test
@@ -61,24 +81,28 @@ class HttpRequestReaderTest {
 
   @Test
   void testRequestHasHeaders() {
-    Request request = parse("POST /hey.txt HTTP/1.1\r\nContent-Type: text/plain\r\n\r\n");
+    requestString = requestBuilder.setMethod("POST").setPath("/hey.txt").setHeader("Content-Type", "text/plain").build();
+    Request request = parse(requestString);
     Map<String, String> headers = new HashMap<>();
     headers.put("Content-Type", "text/plain");
+
     assertEquals(headers, request.getHeaders());
   }
 
   @Test
   void testRequestHasMultipleHeaders() {
-    Request request = parse("POST /hey.txt HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\nhey");
+    Request request = parse(postRequestWithBody());
     Map<String, String> headers = new HashMap<>();
     headers.put("Content-Type", "text/plain");
     headers.put("Content-Length", "3");
+
     assertEquals(headers, request.getHeaders());
   }
 
   @Test
   void testWhenABodyIsPresent() {
-    Request request = parse("POST /hey.txt HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 3\r\n\r\nhey");
+    Request request = parse(postRequestWithBody());
+
     assertEquals("hey", new String(request.getBody()));
   }
 
@@ -86,5 +110,18 @@ class HttpRequestReaderTest {
     ByteArrayInputStream inputStream = new ByteArrayInputStream(request.getBytes());
     HttpRequestReader requestReader = new HttpRequestReader(inputStream);
     return requestReader.read(0);
+  }
+
+  private String basicPostRequest() {
+    return requestBuilder.setMethod("POST").setPath("/").build();
+  }
+
+  private String postRequestWithBody() {
+    return requestBuilder.setMethod("POST")
+            .setPath("/hey.txt")
+            .setHeader("Content-Type", "text/plain")
+            .setHeader("Content-Length", "3")
+            .setBody("hey")
+            .build();
   }
 }

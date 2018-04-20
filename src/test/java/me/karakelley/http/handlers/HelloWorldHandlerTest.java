@@ -15,7 +15,14 @@ class HelloWorldHandlerTest {
   @Test
   void testHelloWorld() {
     Handler handler = new HelloWorldHandler();
-    Response response = handler.respond(new Request(HttpMethod.GET, "/", "HTTP/1.1", new HashMap<>(), null, 0));
+    Response response = handler.respond(new Request.Builder()
+            .setMethod(HttpMethod.GET)
+            .setPath("/")
+            .setProtocol("HTTP/1.1")
+            .setHeaders(new HashMap<>())
+            .setPort(0)
+            .build());
+
     assertEquals(new String(new ResponseFormatter(response).convertToBytes()), "HTTP/1.1 200 OK\r\nContent-Length: 11\r\nContent-Type: text/plain\r\n\r\nHello World");
   }
 }

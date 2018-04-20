@@ -67,7 +67,7 @@ class PublicDirectoryTest {
   }
 
   @Test
-  void testResourceDoesntExist() {
+  void testResourceDoesNotExist() {
     PublicDirectory publicDirectory = PublicDirectory.create("/");
 
     assertFalse(publicDirectory.resourceExists("/someBadPath"));
@@ -137,7 +137,7 @@ class PublicDirectoryTest {
   }
 
   @Test
-  void testCreateNewFileWithNewdirectory() {
+  void testCreateNewFileWithNewDirectory() {
     TempFilesHelper.withTempDirectory(directory ->  {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       try {
@@ -158,11 +158,6 @@ class PublicDirectoryTest {
       byte[] bytes = new byte[0];
       try {
         bytes = Files.readAllBytes(file);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-
-      try {
         publicDirectory.createFile(String.valueOf(file.toAbsolutePath()), "hello world".getBytes());
       } catch (IOException e) {
         e.printStackTrace();
@@ -179,8 +174,8 @@ class PublicDirectoryTest {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       TempFilesHelper.createContents("Hello", file);
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-
       publicDirectory.updateFileContents("/test1.txt", "Hello World".getBytes());
+
       assertEquals("Hello World", new String(publicDirectory.getFileContents("/test1.txt")));
     });
   }
@@ -189,6 +184,7 @@ class PublicDirectoryTest {
   void testValidPath() {
     TempFilesHelper.withTempDirectory(directory ->  {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
+
       assertEquals(true, publicDirectory.resourceExists("testing/../testing"));
     });
   }
@@ -197,6 +193,7 @@ class PublicDirectoryTest {
   void testInvalidPath() {
     TempFilesHelper.withTempDirectory(directory ->  {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
+
       assertFalse(publicDirectory.resourceExists("/testing/../../"));
     });
   }

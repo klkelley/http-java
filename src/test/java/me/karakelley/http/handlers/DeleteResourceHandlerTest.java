@@ -18,7 +18,13 @@ class DeleteResourceHandlerTest {
     TempFilesHelper.withTempDirectory(directory -> {
       Path file = TempFilesHelper.createTempFile(directory, "/test1");
       DeleteResourceHandler handler = new DeleteResourceHandler(PublicDirectory.create(directory.toString()));
-      Response response = handler.respond(new Request(HttpMethod.DELETE, "/test1.txt", "HTTP/1.1", null, "".getBytes(), 0));
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.DELETE)
+              .setPath("/test1/.txt")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
+
       assertEquals("204 No Content", response.getStatus());
     });
   }
