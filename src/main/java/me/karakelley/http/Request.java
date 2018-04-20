@@ -72,10 +72,6 @@ public class Request {
     private byte[] body;
     private Map<String, String> headers;
 
-    public Builder setMethod(String method) {
-      return setMethod(HttpMethod.fromString(method));
-    }
-
     public Builder setMethod(HttpMethod method) {
       this.method = method;
       return this;
