@@ -1,6 +1,6 @@
 package me.karakelley.http;
 
-import me.karakelley.http.handlers.Handler;
+import me.karakelley.http.server.Handler;
 import me.karakelley.http.server.ServerConfiguration;
 import org.junit.jupiter.api.Test;
 

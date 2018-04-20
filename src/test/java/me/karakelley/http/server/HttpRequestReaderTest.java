@@ -1,8 +1,8 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.HttpMethod;
-import me.karakelley.http.Request;
-import me.karakelley.http.exceptions.InvalidRequestException;
+import me.karakelley.http.http.HttpMethod;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;

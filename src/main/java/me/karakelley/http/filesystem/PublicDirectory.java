@@ -1,8 +1,5 @@
 package me.karakelley.http.filesystem;
 
-import me.karakelley.http.exceptions.PublicDirectoryMissingException;
-import me.karakelley.http.exceptions.PublicDirectoryNotADirectoryException;
-
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;

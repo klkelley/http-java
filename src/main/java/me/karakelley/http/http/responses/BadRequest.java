@@ -1,6 +1,6 @@
-package me.karakelley.http.responses;
+package me.karakelley.http.http.responses;
 
-import me.karakelley.http.Response;
+import me.karakelley.http.http.Response;
 
 public class BadRequest extends Response {
 

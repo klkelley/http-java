@@ -1,6 +1,7 @@
 package me.karakelley.http.contentpresenter;
 
 import me.karakelley.http.filesystem.PublicDirectory;
+import me.karakelley.http.handlers.ContentPresenter;
 
 import java.io.File;
 

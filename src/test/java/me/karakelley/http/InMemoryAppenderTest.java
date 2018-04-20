@@ -3,7 +3,7 @@ package me.karakelley.http;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.BasicStatusManager;
-import me.karakelley.http.utility.InMemoryAppender;
+import me.karakelley.http.helpers.InMemoryAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import ch.qos.logback.classic.spi.LoggingEvent;

@@ -1,4 +1,4 @@
-package me.karakelley.http.exceptions;
+package me.karakelley.http.filesystem;
 
 public class PublicDirectoryNotADirectoryException extends RuntimeException {
   public PublicDirectoryNotADirectoryException(String message) {

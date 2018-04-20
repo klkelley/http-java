@@ -1,5 +1,7 @@
 package me.karakelley.http;
 
+import me.karakelley.http.http.HttpMethod;
+import me.karakelley.http.http.Request;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

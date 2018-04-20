@@ -1,10 +1,11 @@
 package me.karakelley.http.handlers;
 
-import me.karakelley.http.HttpMethod;
-import me.karakelley.http.Request;
-import me.karakelley.http.Response;
+import me.karakelley.http.http.HttpMethod;
+import me.karakelley.http.http.Request;
+import me.karakelley.http.http.Response;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.helpers.TempFilesHelper;
+import me.karakelley.http.server.Handler;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;

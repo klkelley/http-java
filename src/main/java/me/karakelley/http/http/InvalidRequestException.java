@@ -1,4 +1,4 @@
-package me.karakelley.http.exceptions;
+package me.karakelley.http.http;
 
 public class InvalidRequestException extends RuntimeException {
 
