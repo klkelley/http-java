@@ -7,6 +7,7 @@ import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.http.Response;
 import me.karakelley.http.http.Request;
 import me.karakelley.http.server.Handler;
+import me.karakelley.http.server.HttpServer;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -18,8 +19,8 @@ class StaticFilesHandlerTest {
   @Test
   void testGetDisplayFiles() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
-      TempFilesHelper.createTempFile(directory, "/test2");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
+      TempFilesHelper.createTempFile(directory, "/test2.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
       Response response = handler.respond(new Request.Builder()
@@ -36,7 +37,7 @@ class StaticFilesHandlerTest {
   @Test
   void testCreatesLinksForDirectories() {
     TempFilesHelper.withTempDirectory(directory -> {
-      TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       Handler handler = new StaticFilesHandler(publicDirectory, new HtmlPresenter());
       Response response = handler.respond(new Request.Builder()
@@ -53,7 +54,7 @@ class StaticFilesHandlerTest {
   @Test
   void testServesTextFile() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello World", file);
 
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
@@ -67,6 +68,25 @@ class StaticFilesHandlerTest {
               .build());
 
       assertEquals("Hello World", new String(response.getBody()));
+    });
+  }
+
+  @Test
+  void testServesIndexFileIfPresent() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      Path file = TempFilesHelper.createTempFile(directory, "/index.html");
+      TempFilesHelper.createContents("<p>Index File Present</p>", file);
+      PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
+      ContentPresenter contentPresenter = new HtmlPresenter();
+      Handler handler = new StaticFilesHandler(publicDirectory, contentPresenter);
+      Response response = handler.respond(new Request.Builder()
+              .setMethod(HttpMethod.GET)
+              .setPath("/")
+              .setProtocol("HTTP/1.1")
+              .setPort(0)
+              .build());
+
+      assertEquals("<p>Index File Present</p>", new String(response.getBody()));
     });
   }
 }

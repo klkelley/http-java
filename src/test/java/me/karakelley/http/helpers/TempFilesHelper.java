@@ -33,7 +33,7 @@ public class TempFilesHelper {
 
   public static Path createTempFile(Path directory, String name) {
     try {
-      return Files.createFile(Paths.get(directory + name + ".txt"));
+      return Files.createFile(Paths.get(directory + name));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

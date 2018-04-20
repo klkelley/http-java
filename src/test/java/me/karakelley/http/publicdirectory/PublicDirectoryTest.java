@@ -26,7 +26,7 @@ class PublicDirectoryTest {
   @Test
   void testPathPointsToAFile() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
 
       assertThrows(PublicDirectoryNotADirectoryException.class, () -> {
         PublicDirectory.create(file.toString());
@@ -47,8 +47,8 @@ class PublicDirectoryTest {
   @Test
   void testListFiles() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
-      Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2");
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1.txt");
+      Path fileTwo = TempFilesHelper.createTempFile(directory, "/test2.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       List<File> fileNames = publicDirectory.getDirectoriesAndFiles("/");
 
@@ -59,7 +59,7 @@ class PublicDirectoryTest {
   @Test
   void testResourceExists() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1");
+      Path fileOne = TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertTrue(publicDirectory.resourceExists("/" + String.valueOf(fileOne.getFileName())));
@@ -85,7 +85,7 @@ class PublicDirectoryTest {
   @Test
   void testIsFile() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals(true, publicDirectory.isFile("/test1.txt"));
@@ -104,7 +104,7 @@ class PublicDirectoryTest {
   @Test
   void testGetFileContentsForEmptyFile() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
 
       assertEquals("", new String(publicDirectory.getFileContents("/test1.txt")));
@@ -114,7 +114,7 @@ class PublicDirectoryTest {
   @Test
   void getFileContents() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello World", file);
 
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
@@ -153,7 +153,7 @@ class PublicDirectoryTest {
   void testBytesAreEqual() {
     TempFilesHelper.withTempDirectory(directory ->  {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
 
       byte[] bytes = new byte[0];
       try {
@@ -171,7 +171,7 @@ class PublicDirectoryTest {
   @Test
   void testUpdateContentsOfFile() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.txt");
       TempFilesHelper.createContents("Hello", file);
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
       publicDirectory.updateFileContents("/test1.txt", "Hello World".getBytes());

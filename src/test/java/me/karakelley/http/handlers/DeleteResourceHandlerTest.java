@@ -16,7 +16,7 @@ class DeleteResourceHandlerTest {
   @Test
   void testResourceIsDeleted() {
     TempFilesHelper.withTempDirectory(directory -> {
-      Path file = TempFilesHelper.createTempFile(directory, "/test1");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
       DeleteResourceHandler handler = new DeleteResourceHandler(PublicDirectory.create(directory.toString()));
       Response response = handler.respond(new Request.Builder()
               .setMethod(HttpMethod.DELETE)

@@ -26,8 +26,8 @@ class ApplicationTest {
   @Test
   void testRootRouteWithDirectory() {
     TempFilesHelper.withTempDirectory(directory ->  {
-      TempFilesHelper.createTempFile(directory, "/test1");
-      TempFilesHelper.createTempFile(directory, "/test2");
+      TempFilesHelper.createTempFile(directory, "/test1.txt");
+      TempFilesHelper.createTempFile(directory, "/test2.txt");
 
       Handler handler = new Application(PublicDirectory.create(directory.toString()));
       Response response = handler.respond(basicGetRequest());
