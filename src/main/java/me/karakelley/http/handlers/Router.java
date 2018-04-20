@@ -26,16 +26,21 @@ public class Router implements Handler {
 
   @Override
   public Response respond(Request request) {
-    return getController(request).respond(request);
+    HashMap<HttpMethod, Handler> predefinedRoute = predefinedRoutes.get(request.getPath());
+
+    if (predefinedRoute == null) {
+      return staticFileRoutes(request);
+    }
+    return predefinedRoutes(predefinedRoute, request);
   }
 
-  private Handler getController(Request request) {
-    HashMap<HttpMethod, Handler> resource = predefinedRoutes.get(request.getPath());
+  private Response predefinedRoutes(HashMap<HttpMethod, Handler> predefinedRoute, Request request) {
+    Handler handler = predefinedRoute.get(request.getMethod());
+    return handler == null ? new MethodNotAllowed() : handler.respond(request);
+  }
 
-    if (resource == null) {
-      return staticFileRoutes.getOrDefault(request.getMethod(), new InvalidRequestHandler(new NotFound()));
-    }
-
-    return resource.getOrDefault(request.getMethod(), new InvalidRequestHandler(new MethodNotAllowed()));
+  private Response staticFileRoutes(Request request) {
+    Handler handler = staticFileRoutes.get(request.getMethod());
+    return staticFileRoutes.get(request.getMethod()) == null ? new NotFound() : handler.respond(request);
   }
 }
