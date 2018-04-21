@@ -7,7 +7,6 @@ import me.karakelley.http.http.Request;
 import me.karakelley.http.http.Response;
 import me.karakelley.http.presenters.HtmlFilePresenter;
 import me.karakelley.http.server.Handler;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
