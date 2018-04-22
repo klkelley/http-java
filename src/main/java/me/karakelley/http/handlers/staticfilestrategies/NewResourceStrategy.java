@@ -1,4 +1,4 @@
-package me.karakelley.http.handlers;
+package me.karakelley.http.handlers.staticfilestrategies;
 
 import me.karakelley.http.http.Request;
 import me.karakelley.http.http.Response;
@@ -7,11 +7,11 @@ import me.karakelley.http.http.responses.Conflict;
 import me.karakelley.http.http.responses.Created;
 import me.karakelley.http.server.Handler;
 
-public class NewResourceHandler implements Handler {
+public class NewResourceStrategy implements Handler {
 
   private final PublicDirectory publicDirectory;
 
-  NewResourceHandler(PublicDirectory publicDirectory) {
+  public NewResourceStrategy(PublicDirectory publicDirectory) {
     this.publicDirectory = publicDirectory;
   }
 
