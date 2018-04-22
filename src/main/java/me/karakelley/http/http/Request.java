@@ -24,6 +24,10 @@ public class Request {
   }
 
   public String getPath() {
+    return path.split("\\?")[0];
+  }
+
+  public String getQueryParams() {
     return path;
   }
 

@@ -1,10 +1,11 @@
 package me.karakelley.http.handlers;
 
+import me.karakelley.http.presenters.HtmlFilePresenter;
+import me.karakelley.http.presenters.HtmlListPresenter;
 import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.http.Request;
 import me.karakelley.http.http.Response;
-import me.karakelley.http.contentpresenter.HtmlPresenter;
 import me.karakelley.http.server.Handler;
 
 public class Application implements Handler {
@@ -19,7 +20,7 @@ public class Application implements Handler {
   public Application(PublicDirectory publicDirectory) {
     this.publicDirectory = publicDirectory;
     router.route(HttpMethod.POST, new NewResourceHandler(publicDirectory));
-    router.route(HttpMethod.GET, new StaticFilesHandler(publicDirectory, new HtmlPresenter()));
+    router.route(HttpMethod.GET, new StaticFilesHandler(publicDirectory, new HtmlFilePresenter(publicDirectory)));
     router.route(HttpMethod.PUT, new UpdateResourceHandler(publicDirectory));
     router.route(HttpMethod.DELETE, new DeleteResourceHandler(publicDirectory));
     setupPredefinedRoutes();
@@ -32,6 +33,7 @@ public class Application implements Handler {
 
   private void setupPredefinedRoutes() {
     router.route(HttpMethod.GET, "/redirectme", new RedirectHandler());
+    router.route(HttpMethod.GET, "/parse", new QueryParametersHandler(new HtmlListPresenter()));
   }
 }
 

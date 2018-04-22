@@ -32,10 +32,10 @@ class HttpServerTest {
   }
 
   @Test
-  void testSendsResponseGivenValidRequest() throws Exception {
+  void testSendsResponseGivenValidRequest() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
 
     List<String> response = client.sendMessage(basicGetRequest());
 
@@ -44,21 +44,20 @@ class HttpServerTest {
   }
 
   @Test
-  void testSendsResponseWithHeadersGivenValidRequest() throws Exception {
+  void testSendsResponseWithHeadersGivenValidRequest() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
-
+    connectClient(httpServer, client);
     List<String> response = client.sendMessage(basicGetRequest());
 
     assertTrue(response.contains("Content-Type: text/plain") && response.contains("Content-Length: 11"));
   }
 
   @Test
-  void testSends404GivenInvalidPath() throws Exception {
+  void testSends404GivenInvalidPath() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
 
     requestString = requestBuilder.setMethod("GET").setPath("/nowhere").build();
     List<String> response = client.sendMessage(requestString);
@@ -67,20 +66,20 @@ class HttpServerTest {
   }
 
   @Test
-  void testSends400GivenPartialRequest() throws Exception {
+  void testSends400GivenPartialRequest() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
 
     List<String> response = client.sendMessage("GET /\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 400 Bad Request"));
   }
 
   @Test
-  void testSends400GivenInvalidMethod() throws Exception {
+  void testSends400GivenInvalidMethod() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
     requestString = requestBuilder.setMethod("GIT").setPath("/").build();
 
     List<String> response = client.sendMessage(requestString);
@@ -88,10 +87,10 @@ class HttpServerTest {
   }
 
   @Test
-  void testSends400GivenInvalidProtocol() throws Exception {
+  void testSends400GivenInvalidProtocol() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
 
     List<String> response = client.sendMessage("GET / HT\r\n\r\n");
     assertTrue(response.contains("HTTP/1.1 400 Bad Request"));
@@ -143,10 +142,10 @@ class HttpServerTest {
   }
 
   @Test
-  void testRedirectsWhenPathIsRedirectme() throws Exception {
+  void testRedirectsWhenPathIsRedirectme() {
     HttpServer httpServer = configureWithNoDirectory("4000");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
     requestString = requestBuilder.setMethod("GET").setPath("/redirectme").build();
 
     List<String> response = client.sendMessage(requestString);
@@ -154,10 +153,10 @@ class HttpServerTest {
   }
 
   @Test
-  void testRedirectPathOnlyAcceptsGet() throws Exception {
+  void testRedirectPathOnlyAcceptsGet() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
     requestString = requestBuilder.setMethod("POST").setPath("/redirectme").build();
 
     List<String> response = client.sendMessage(requestString);
@@ -165,10 +164,10 @@ class HttpServerTest {
   }
 
   @Test
-  void test405WhenPostingToRoot() throws Exception {
+  void test405WhenPostingToRoot() {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
     requestString = requestBuilder.setMethod("POST").setPath("/").build();
 
     List<String> response = client.sendMessage(requestString);
@@ -176,10 +175,10 @@ class HttpServerTest {
   }
 
   @Test
-  void testListSubPathDirectories() throws InterruptedException {
+  void testListSubPathDirectories() {
     HttpServer httpServer = configureWithDirectory("./src/test", "0");
     startOnNewThread(httpServer);
-    client.connectWithTry("127.0.0.1", httpServer);
+    connectClient(httpServer, client);
     requestString = requestBuilder.setMethod("GET").setPath("/resources/").build();
 
     List<String> response = client.sendMessage(requestString);
@@ -197,7 +196,7 @@ class HttpServerTest {
       List<String> response = client.sendMessage(basicGetRequest());
 
       assertTrue(response.contains("Content-Type: text/html"));
-      assertTrue(response.contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
+      assertTrue(response.get(4).contains("<p><a href=\"/test1.txt\">test1.txt</a></p>"));
     });
   }
 
@@ -227,7 +226,6 @@ class HttpServerTest {
 
       requestString = requestBuilder.setMethod("GET").setPath("/test1.txt").build();
       List<String> response = client.sendMessage(requestString);
-
       assertTrue(response.contains("Content-Type: text/plain"));
       assertTrue(response.contains("Hello World"));
     });
@@ -343,7 +341,6 @@ class HttpServerTest {
     startOnNewThread(httpServer);
     client.connectWithTry("127.0.0.1", httpServer);
 
-
     List<String> response = client.sendMessage(basicGetRequest());
 
     assertTrue(response.contains("Hello World"));
@@ -378,6 +375,18 @@ class HttpServerTest {
 
       assertTrue(response.contains("<p>Hello!</p>"));
     });
+  }
+
+  @Test
+  void testQueryParamsParsedWhenGiven() {
+    HttpServer httpServer = configureWithNoDirectory("0");
+    startOnNewThread(httpServer);
+    connectClient(httpServer, client);
+
+    requestString = requestBuilder.setMethod("GET").setPath("/parse?hello=world").build();
+    List<String> response = client.sendMessage(requestString);
+
+    assertTrue(response.get(4).contains("<dt>hello</dt><dd>world</dd>"));
   }
 
   private List<String> withCapturedLogging(Runnable runnable) {

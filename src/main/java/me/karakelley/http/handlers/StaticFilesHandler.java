@@ -14,15 +14,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StaticFilesHandler implements Handler {
-  private final ContentPresenter contentPresenter;
   private final PublicDirectory publicDirectory;
+  private FilePresenter filePresenter;
   private final String CONTENT_TYPE = "Content-Type";
   private final String TEXT_HTML = "text/html";
   private final String ROOT_INDEX_FILE = "index.html";
 
-  public StaticFilesHandler(PublicDirectory publicDirectory, ContentPresenter contentPresenter) {
-    this.contentPresenter = contentPresenter;
+  public StaticFilesHandler(PublicDirectory publicDirectory, FilePresenter filePresenter) {
     this.publicDirectory = publicDirectory;
+    this.filePresenter = filePresenter;
   }
 
   public Response respond(Request request) {
@@ -49,7 +49,7 @@ public class StaticFilesHandler implements Handler {
     if (indexFile.isPresent()) {
       return serveFilesResponse(response, "/" + indexFile.get());
     }
-    response.setBody(String.join("", getFilesAndDirectoryLinks(requestedResource)));
+    response.setBody(getFilesAndDirectoryLinks(requestedResource));
     response.setHeaders(CONTENT_TYPE, TEXT_HTML);
     return response;
   }
@@ -60,13 +60,10 @@ public class StaticFilesHandler implements Handler {
     return response;
   }
 
-  private ArrayList<String> getFilesAndDirectoryLinks(String resource) {
+  private String getFilesAndDirectoryLinks(String resource) {
     List<File> files = publicDirectory.getDirectoriesAndFiles(resource);
-    ArrayList<String> resources = new ArrayList<>();
-    for (File file : files) {
-      resources.add(contentPresenter.displayResources(file, publicDirectory));
-    }
-    return resources;
+    ArrayList<File> resources = new ArrayList<>(files);
+    return filePresenter.displayFiles(resources);
   }
 
   private Optional<String> lookForIndexFile(String requestedResource) {
