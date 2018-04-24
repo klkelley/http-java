@@ -17,7 +17,6 @@ public class HttpRequestReader {
   private String protocol;
   private Map<String, String> headers;
   private String CRLF = "\r\n";
-
   private InputStream reader;
   private final static Logger logger = LoggerFactory.getLogger(HttpRequestReader.class);
 
@@ -42,7 +41,10 @@ public class HttpRequestReader {
     } catch (IOException e) {
       logger.info("Ouch!", e);
     }
+    return buildRequest(bodyBytes, port);
+  }
 
+  private Request buildRequest(byte[] bodyBytes, int port) {
     return new Request.Builder()
             .setMethod(method)
             .setPath(path)
@@ -51,6 +53,7 @@ public class HttpRequestReader {
             .setBody(bodyBytes)
             .setPort(port)
             .build();
+
   }
 
   private String readRequestLineAndHeaders() throws IOException {
@@ -76,16 +79,6 @@ public class HttpRequestReader {
       }
     }
     return buffer.toByteArray();
-  }
-
-  private String validPath(String path) {
-    if (path == null) throw new InvalidRequestException("Invalid Path!");
-    return path;
-  }
-
-  private String validProtocol(String protocol) {
-    if (!protocol.equals("HTTP/1.1")) throw new InvalidRequestException("Invalid Protocol!");
-    return protocol;
   }
 
   private void parseRequestLine(String requestString) {
@@ -114,6 +107,16 @@ public class HttpRequestReader {
               .map(header -> Arrays.asList(header.split(":\\s+")))
               .collect(Collectors.toMap(line -> line.get(0), line -> line.get(1)));
     } else return new HashMap<>();
+  }
+
+  private String validPath(String path) {
+    if (path == null) throw new InvalidRequestException("Invalid Path!");
+    return path;
+  }
+
+  private String validProtocol(String protocol) {
+    if (!protocol.equals("HTTP/1.1")) throw new InvalidRequestException("Invalid Protocol!");
+    return protocol;
   }
 }
 

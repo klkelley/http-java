@@ -1,7 +1,9 @@
 package me.karakelley.http.server;
 
 import ch.qos.logback.classic.Logger;
-import me.karakelley.http.handlers.ApplicationFactory;
+import me.karakelley.http.authorization.AlwaysAuthorized;
+import me.karakelley.http.handlers.AuthorizedApplicationFactory;
+import me.karakelley.http.authorization.BasicAuthorizer;
 import me.karakelley.http.helpers.ClientHelper;
 import me.karakelley.http.helpers.RequestStringBuilder;
 import me.karakelley.http.helpers.TempFilesHelper;
@@ -99,16 +101,11 @@ class HttpServerTest {
   @Test
   void testPortIsUnavailable() {
     List<String> events = withCapturedLogging(() -> {
-      ServerConfiguration config = new ServerConfiguration();
-      config.setPort("0");
-      Map<String, String> args = new HashMap<>();
-      config.setHandler(new ApplicationFactory().create(args));
-      config.setPort("4000");
-      HttpServer httpServer = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      HttpServer httpServer = configureWithNoDirectory("4000");
       startOnNewThread(httpServer);
       sleep();
 
-      HttpServer httpServerOnSamePort = new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
+      HttpServer httpServerOnSamePort = configureWithNoDirectory("4000");
       startOnNewThread(httpServerOnSamePort);
       try {
         client.connectWithTry("127.0.0.1", httpServer);
@@ -157,9 +154,10 @@ class HttpServerTest {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
     connectClient(httpServer, client);
-    requestString = requestBuilder.setMethod("POST").setPath("/redirectme").build();
 
+    requestString = requestBuilder.setMethod("POST").setPath("/redirectme").setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy").build();
     List<String> response = client.sendMessage(requestString);
+
     assertTrue(response.contains("HTTP/1.1 405 Method Not Allowed"));
   }
 
@@ -168,9 +166,10 @@ class HttpServerTest {
     HttpServer httpServer = configureWithNoDirectory("0");
     startOnNewThread(httpServer);
     connectClient(httpServer, client);
-    requestString = requestBuilder.setMethod("POST").setPath("/").build();
 
+    requestString = requestBuilder.setMethod("POST").setPath("/").setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy").build();
     List<String> response = client.sendMessage(requestString);
+
     assertTrue(response.contains("HTTP/1.1 405 Method Not Allowed"));
   }
 
@@ -179,9 +178,10 @@ class HttpServerTest {
     HttpServer httpServer = configureWithDirectory("./src/test", "0");
     startOnNewThread(httpServer);
     connectClient(httpServer, client);
-    requestString = requestBuilder.setMethod("GET").setPath("/resources/").build();
 
+    requestString = requestBuilder.setMethod("GET").setPath("/resources/").build();
     List<String> response = client.sendMessage(requestString);
+
     assertTrue(response.contains("HTTP/1.1 200 OK"));
   }
 
@@ -239,7 +239,12 @@ class HttpServerTest {
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
 
-      requestString = requestBuilder.setMethod("POST").setPath("/testmore.txt").setHeader("Content-Length", "3").setBody("hey").build();
+      requestString = requestBuilder.setMethod("POST")
+              .setPath("/testmore.txt")
+              .setHeader("Content-Length", "3")
+              .setBody("hey")
+              .setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy")
+              .build();
       List<String> response = client.sendMessage(requestString);
 
       assertTrue(response.contains("HTTP/1.1 201 Created"));
@@ -254,7 +259,12 @@ class HttpServerTest {
       startOnNewThread(httpServer);
       connectTwoClients(httpServer, client2);
 
-      requestString = requestBuilder.setMethod("POST").setPath("/testmore.txt").setHeader("Content-Length", "3").setBody("hey").build();
+      requestString = requestBuilder.setMethod("POST")
+              .setPath("/testmore.txt")
+              .setHeader("Content-Length", "3")
+              .setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy")
+              .setBody("hey")
+              .build();
       String secondRequest = requestBuilder.setMethod("GET").setPath("/testmore.txt").build();
       List<String> postResponse = client.sendMessage(requestString);
       List<String> getResponse = client2.sendMessage(secondRequest);
@@ -274,7 +284,12 @@ class HttpServerTest {
       startOnNewThread(httpServer);
       connectTwoClients(httpServer, client2);
 
-      requestString = requestBuilder.setMethod("PUT").setPath("/test1.txt").setHeader("Content-Length", "11").setBody("Hello World").build();
+      requestString = requestBuilder.setMethod("PUT")
+              .setPath("/test1.txt")
+              .setHeader("Content-Length", "11")
+              .setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy")
+              .setBody("Hello World")
+              .build();
       String secondRequest = requestBuilder.setMethod("GET").setPath("/test1.txt").build();
       List<String> response = client.sendMessage(requestString);
       List<String> getResponse = client2.sendMessage(secondRequest);
@@ -308,7 +323,7 @@ class HttpServerTest {
       startOnNewThread(httpServer);
       connectClient(httpServer, client);
 
-      requestString = requestBuilder.setMethod("DELETE").setPath("/test1.txt").build();
+      requestString = requestBuilder.setMethod("DELETE").setPath("/test1.txt").setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy").build();
       List<String> response = client.sendMessage(requestString);
 
       assertTrue(response.contains("HTTP/1.1 204 No Content"));
@@ -325,7 +340,7 @@ class HttpServerTest {
       startOnNewThread(httpServer);
       connectTwoClients(httpServer, client2);
 
-      requestString = requestBuilder.setMethod("DELETE").setPath("/test1.txt").build();
+      requestString = requestBuilder.setMethod("DELETE").setPath("/test1.txt").setHeader("Authorization", "Basic YWRtaW46Y2hpY2FnbzMy").build();
       String secondRequest = requestBuilder.setMethod("GET").setPath("/test1.txt").build();
       List<String> response = client.sendMessage(requestString);
       List<String> getResponse = client2.sendMessage(secondRequest);
@@ -389,6 +404,20 @@ class HttpServerTest {
     assertTrue(response.get(4).contains("<dt>hello</dt><dd>world</dd>"));
   }
 
+  @Test
+  void test401ForUnauthorizedUser() {
+    TempFilesHelper.withTempDirectory(directory -> {
+      TempFilesHelper.createTempFile(directory, "/test1");
+      HttpServer httpServer = configureWithDirectory(directory.toString(), "0");
+      startOnNewThread(httpServer);
+      connectClient(httpServer, client);
+
+      requestString = requestBuilder.setMethod("DELETE").setPath("/test1.txt").build();
+      List<String> response = client.sendMessage(requestString);
+      assertTrue(response.contains("HTTP/1.1 401 Unauthorized"));
+    });
+  }
+
   private List<String> withCapturedLogging(Runnable runnable) {
     Logger logger = (Logger) LoggerFactory.getLogger("ROOT");
     InMemoryAppender inMemoryAppender = (InMemoryAppender) logger.getAppender("InMemoryAppender");
@@ -401,18 +430,20 @@ class HttpServerTest {
 
   private HttpServer configureWithDirectory(String directory, String port) {
     ServerConfiguration config = new ServerConfiguration();
+    BasicAuthorizer basicAuthorizer = new BasicAuthorizer("admin", "chicago32");
     Map<String, String> args = new HashMap<>();
     args.put("directory", directory);
     config.setPort(port);
-    config.setHandler(new ApplicationFactory().create(args));
+    config.setHandler(new AuthorizedApplicationFactory().create(args, basicAuthorizer));
     return new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
   }
 
   private HttpServer configureWithNoDirectory(String port) {
     ServerConfiguration config = new ServerConfiguration();
+    BasicAuthorizer basicAuthorizer = new BasicAuthorizer("admin", "chicago32");
     Map<String, String> args = new HashMap<>();
     config.setPort(port);
-    config.setHandler(new ApplicationFactory().create(args));
+    config.setHandler(new AuthorizedApplicationFactory().create(args, basicAuthorizer));
     return new HttpServer(config, new ConnectionHandler(), new RequestReaderFactory());
   }
 
