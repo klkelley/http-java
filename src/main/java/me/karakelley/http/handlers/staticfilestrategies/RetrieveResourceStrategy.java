@@ -48,7 +48,7 @@ public class RetrieveResourceStrategy implements Handler {
   private Response serveDirectoryResponse(Response response, String requestedResource) {
     Optional<String> indexFile = lookForIndexFile(requestedResource);
     if (indexFile.isPresent()) {
-      return serveFilesResponse(response, "/" + indexFile.get());
+      return serveFilesResponse(response, requestedResource + "/" +indexFile.get());
     }
     response.setBody(getFilesAndDirectoryLinks(requestedResource));
     response.setHeaders(CONTENT_TYPE, TEXT_HTML);
