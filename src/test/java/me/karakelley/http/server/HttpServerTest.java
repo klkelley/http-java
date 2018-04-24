@@ -1,7 +1,6 @@
 package me.karakelley.http.server;
 
 import ch.qos.logback.classic.Logger;
-import me.karakelley.http.authorization.AlwaysAuthorized;
 import me.karakelley.http.handlers.AuthorizedApplicationFactory;
 import me.karakelley.http.authorization.BasicAuthorizer;
 import me.karakelley.http.helpers.ClientHelper;

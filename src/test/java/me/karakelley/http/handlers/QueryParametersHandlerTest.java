@@ -1,6 +1,5 @@
 package me.karakelley.http.handlers;
 
-
 import me.karakelley.http.presenters.HtmlListPresenter;
 import me.karakelley.http.http.HttpMethod;
 import me.karakelley.http.http.Request;

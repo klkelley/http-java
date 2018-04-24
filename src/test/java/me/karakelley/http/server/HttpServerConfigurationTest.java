@@ -1,7 +1,5 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.server.Handler;
-import me.karakelley.http.server.ServerConfiguration;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
