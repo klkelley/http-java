@@ -1,10 +1,19 @@
 # HTTP-Server[![Build Status](https://travis-ci.org/klkelley/http-java.svg?branch=master)](https://travis-ci.org/klkelley/http-java)
 
 
+
+# Choose Your Own Adventure
+
+_Be sure to checkout out the [scope of the project](#scope-of-project) for information on special features, routes, etc_
+
+
 ## Visit on the Web
 
 [karakelley.rocks](http://karakelley.rocks:8080/)
 
+The server is deployed at [karakelley.rocks](http://karakelley.rocks:8080/) where several public files/directories
+are currently being served. If you want to check the functionality and poke around without spinning up the server locally with 
+ your own directory, this is a great option. 
 
 ## Using Docker 
 ### Get latest docker image 
@@ -58,3 +67,35 @@ $ java -jar build/libs/http-server.jar -p <OPTIONAL PORT NUMBER> -d <OPTIONAL DI
 ```
 $ gradle test
 ```
+
+
+## Scope of Project 
+
+**Supported requests**: 
+* GET
+* POST
+* PUT
+* DELETE 
+
+**Features**: Basic authorization & Query Parameters
+
+**Basic Authorization credentials**:
+* username: admin 
+* password: chicago32
+
+
+**Special routes**:
+* `/parse` which supports query parameters
+* `/redirectme` which will redirect you back to root 
+
+
+**Without a directory**:
+If you do not pass in a directory the root page will display "Hello World". 
+
+
+**With a directory**:
+If a requested directory contains an `index.html` file it will be served otherwise the directory listing will be served. 
+
+
+### UML Diagrams 
+Two UML diagrams are served in the directory `/files/UML`. Here you will find a class diagram and package diagram illustrating the entire project. 
