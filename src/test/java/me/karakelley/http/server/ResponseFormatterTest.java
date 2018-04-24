@@ -1,7 +1,6 @@
-package me.karakelley.http;
+package me.karakelley.http.server;
 
 import me.karakelley.http.http.Response;
-import me.karakelley.http.server.ResponseFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

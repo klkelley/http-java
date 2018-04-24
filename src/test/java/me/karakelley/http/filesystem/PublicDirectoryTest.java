@@ -1,8 +1,5 @@
-package me.karakelley.http.publicdirectory;
+package me.karakelley.http.filesystem;
 
-import me.karakelley.http.filesystem.PublicDirectoryMissingException;
-import me.karakelley.http.filesystem.PublicDirectoryNotADirectoryException;
-import me.karakelley.http.filesystem.PublicDirectory;
 import me.karakelley.http.helpers.TempFilesHelper;
 import org.junit.jupiter.api.Test;
 

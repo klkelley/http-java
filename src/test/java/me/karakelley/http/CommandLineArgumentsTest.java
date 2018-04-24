@@ -1,6 +1,7 @@
 package me.karakelley.http;
 
 import ch.qos.logback.classic.Logger;
+import me.karakelley.http.CommandLineArguments;
 import me.karakelley.http.mocks.ExitMock;
 import me.karakelley.http.exit.Exit;
 import me.karakelley.http.helpers.InMemoryAppender;
