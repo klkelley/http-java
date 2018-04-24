@@ -85,6 +85,25 @@ class StaticFilesHandlerTest {
         assertEquals("<p>Index File Present</p>", new String(response.getBody()));
       });
     }
+
+    @Test
+    void servedIndexFileForNestedDirectory() {
+      TempFilesHelper.withTempDirectory(directory -> {
+        Path file = TempFilesHelper.createNestedDirectoryWithFile(directory, "/level2/index.html");
+        TempFilesHelper.createContents("<p>Index File Present at Second Level</p>", file);
+        PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
+        FilePresenter filePresenter = new HtmlFilePresenter(publicDirectory);
+        Handler handler = new StaticFilesHandler(publicDirectory, filePresenter);
+        Response response = handler.respond(new Request.Builder()
+                .setMethod(HttpMethod.GET)
+                .setPath("/level2")
+                .setProtocol("HTTP/1.1")
+                .setPort(0)
+                .build());
+
+        assertEquals("<p>Index File Present at Second Level</p>", new String(response.getBody()));
+      });
+    }
   }
 
   @Nested

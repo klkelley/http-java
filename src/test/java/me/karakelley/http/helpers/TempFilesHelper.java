@@ -35,8 +35,19 @@ public class TempFilesHelper {
     try {
       return Files.createFile(Paths.get(directory + name));
     } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      throw new RuntimeException(e);
     }
+  }
+
+  public static Path createNestedDirectoryWithFile(Path directory, String name) {
+    File file = null;
+    try {
+      file = Paths.get(directory + name).toFile().getCanonicalFile();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    new File(Paths.get(directory + name).toFile().getParentFile().getAbsolutePath()).mkdirs();
+    return file.toPath();
   }
 
   public static void createContents(String text, Path file) {

@@ -50,16 +50,16 @@ public class PublicDirectory {
   }
 
   public String getMimeType(String requestedResource) {
-    File path = getPath(requestedResource).toFile();
+    File path = normalizeFullPath(requestedResource);
     return URLConnection.guessContentTypeFromName(path.getName());
   }
 
   public boolean isFile(String requestedResource) {
-    return getPath(requestedResource).toFile().isFile();
+    return normalizeFullPath(requestedResource).isFile();
   }
 
   public byte[] getFileContents(String requestedResource) {
-    Path file = getPath(requestedResource);
+    Path file = normalizeFullPath(requestedResource).toPath();
     try {
       return Files.readAllBytes(file);
     } catch (IOException e) {
@@ -68,7 +68,7 @@ public class PublicDirectory {
   }
 
   public void createFile(String path, byte[] contents) throws IOException {
-    File newFile = getPath(path).toFile();
+    File newFile = normalizeFullPath(path);
     if (newFile.exists() && (newFile.isFile() || newFile.isDirectory())) throw new IOException();
 
     new File(newFile.getParentFile().getAbsolutePath()).mkdirs();
@@ -87,7 +87,7 @@ public class PublicDirectory {
   }
 
   public void deleteResource(String path) {
-    Path newFile = getPath(path);
+    Path newFile = normalizeFullPath(path).toPath();
     try {
       Files.deleteIfExists(newFile);
     } catch (IOException e) {
@@ -96,7 +96,7 @@ public class PublicDirectory {
   }
 
   public void updateFileContents(String path, byte[] contents) {
-    File newFile = getPath(path).toFile();
+    File newFile = normalizeFullPath(path);
     try (FileOutputStream outputStream = new FileOutputStream(newFile, false)) {
       outputStream.write(contents);
     } catch (IOException e) {
