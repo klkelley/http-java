@@ -3,7 +3,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "2.0.2"
 }
 
-group 'me.karakelley'
+group 'me.application'
 version 'server'
 
 apply plugin: 'java'
@@ -39,7 +39,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'me.karakelley.http.Main'
+                'Main-Class': 'me.karakelley.http.application.Main'
         )
     }
     baseName = "http"
