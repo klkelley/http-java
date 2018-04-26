@@ -1,9 +1,9 @@
 package me.karakelley.http.server;
 
-import me.karakelley.http.http.InvalidRequestException;
-import me.karakelley.http.http.Request;
-import me.karakelley.http.http.Response;
-import me.karakelley.http.http.responses.BadRequest;
+import me.karakelley.http.server.http.InvalidRequestException;
+import me.karakelley.http.server.http.Request;
+import me.karakelley.http.server.http.Response;
+import me.karakelley.http.server.http.responses.BadRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
