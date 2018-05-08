@@ -7,7 +7,8 @@ public enum HttpMethod {
   GET,
   POST,
   PUT,
-  DELETE;
+  DELETE,
+  OPTIONS;
 
   public static List<HttpMethod> modifiableMethods = Arrays.asList(PUT, DELETE, POST);
 
@@ -24,6 +25,9 @@ public enum HttpMethod {
 
       case "DELETE":
           return DELETE;
+
+      case "OPTIONS":
+          return OPTIONS;
 
       default:
         throw new InvalidRequestException("ouch");
