@@ -74,8 +74,8 @@ class PublicDirectoryTest {
   void testGetMimeType() {
     TempFilesHelper.withTempDirectory(directory -> {
       PublicDirectory publicDirectory = PublicDirectory.create(directory.toString());
-
-      assertEquals("text/plain", publicDirectory.getMimeType("/text1.txt"));
+      Path file = TempFilesHelper.createTempFile(directory, "/test1.ss");
+      assertEquals("text/css", publicDirectory.getMimeType("/test1.css"));
     });
   }
 
