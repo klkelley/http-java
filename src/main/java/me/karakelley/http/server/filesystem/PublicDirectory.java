@@ -1,5 +1,4 @@
 package me.karakelley.http.server.filesystem;
-
 import java.io.*;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -22,10 +21,12 @@ public class PublicDirectory {
 
   private File documentRoot;
   private String path;
+  private HashMap<String, String> mimeTypes = new HashMap<>();
 
   private PublicDirectory(String path) {
     this.documentRoot = Paths.get(path).toFile();
     this.path = path;
+    setUpMimeTypes();
   }
 
   public List<File> getDirectoriesAndFiles(String requestedResource) {
@@ -49,9 +50,14 @@ public class PublicDirectory {
     return documentRoot.toURI().relativize(file.toURI()).getPath();
   }
 
-  public String getMimeType(String requestedResource) {
+  public String getMimeType(String requestedResource){
     File path = normalizeFullPath(requestedResource);
-    return URLConnection.guessContentTypeFromName(path.getName());
+    String ext = "";
+    int i = path.getName().lastIndexOf('.');
+    if (i > 0) {
+      ext = path.getName().substring(i+1);
+    }
+    return mimeTypes.getOrDefault(ext, URLConnection.guessContentTypeFromName(path.getName()));
   }
 
   public boolean isFile(String requestedResource) {
@@ -124,6 +130,18 @@ public class PublicDirectory {
 
   private Path normalizedDocumentRoot() {
     return documentRoot.toPath().normalize();
+  }
+
+  private void setUpMimeTypes() {
+    mimeTypes.put("css", "text/css");
+    mimeTypes.put("txt", "text/plain");
+    mimeTypes.put("text", "text/plain");
+    mimeTypes.put("svg", "image/svg+xml");
+    mimeTypes.put("html", "text/html");
+    mimeTypes.put("pdf", "application/pdf");
+    mimeTypes.put("png", "image/png");
+    mimeTypes.put("doc", "application/msword");
+    mimeTypes.put("gif", "image/gif");
   }
 }
 
